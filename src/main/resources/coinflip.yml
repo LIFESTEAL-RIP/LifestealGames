@@ -1,0 +1,54 @@
+settings:
+  messages:
+    wager_start:
+      title: '&a&lWAGER'
+      message: '&aEnter your wager in chat!'
+      fade_in: 1
+      stay: 20
+      fade_out: 1
+    wager_inputted: '&aYou have wagered $&f%wager%'
+
+
+menu:
+  size: 45
+  title: 'Coinflip'
+  items:
+    stats:
+      slot: 37
+      name: '&3&lStats'
+      material: PLAYER_HEAD
+      lore:
+        - '&3Wins: %wins%'
+        - '&3Losses: %losses%'
+        - '&3Profit: %profit%'
+        - '&3Win Percentage: %win_percentage% %'
+      enchanted: false
+    previous_page:
+      slot: 39
+      name: '&3&lPrevious Page'
+      material: PAPER
+      lore:
+      enchanted: false
+    create_game:
+      slot: 40
+      name: '&3&lCreate Game'
+      material: SUNFLOWER
+      lore:
+      enchanted: false
+    next_page:
+      slot: 41
+      name: '&3&lNext Page'
+      material: PAPER
+      lore:
+      enchanted: false
+    leaderboard:
+      slot: 44
+      name: '&3&lLeaderboard &o&7(Top Profit)'
+      material: OAK_SIGN
+      lore:
+        - "&3#1) &f%leaderboard_1_name% &3%leaderboard_1_profit%"
+        - "&3#2) &f%leaderboard_2_name% &3%leaderboard_2_profit%"
+        - "&3#3) &f%leaderboard_3_name% &3%leaderboard_3_profit%"
+        - "&3#4) &f%leaderboard_4_name% &3%leaderboard_4_profit%"
+        - "&3#5) &f%leaderboard_5_name% &3%leaderboard_5_profit%"
+      enchanted: false

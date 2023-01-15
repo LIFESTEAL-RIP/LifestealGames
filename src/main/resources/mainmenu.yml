@@ -1,0 +1,23 @@
+games_menu:
+  size: 27
+  title: 'Games'
+  items:
+    coinflip:
+      slot: 11
+      name: 'CoinFlip'
+      material: SUNFLOWER
+      lore:
+        - Example\
+      enchanted: true
+    rps:
+      slot: 13
+      name: 'Rock Paper Scissors'
+      lore:
+        - Example
+      enchanted: true
+    crash:
+      slot: 15
+      name: 'Crash'
+      lore:
+        - Example
+      enchanted: true

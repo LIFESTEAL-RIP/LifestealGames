@@ -1,0 +1,4 @@
+name: Games
+version: '${project.version}'
+main: com.etsuni.games.Games
+api-version: 1.19
