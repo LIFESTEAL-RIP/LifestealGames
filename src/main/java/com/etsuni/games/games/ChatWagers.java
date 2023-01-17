@@ -8,6 +8,7 @@ import java.util.Map;
 public class ChatWagers {
 
     private Map<Player, GameType> wagersBeingWaitedOn = new HashMap<>();
+    private Map<Player, RPS> rpsChoicesBeingWaitedOn = new HashMap<>();
     private static ChatWagers instance = new ChatWagers();
 
     private ChatWagers() {
@@ -20,5 +21,9 @@ public class ChatWagers {
 
     public Map<Player, GameType> getWaitingList() {
         return wagersBeingWaitedOn;
+    }
+
+    public Map<Player, RPS> getRpsChoicesBeingWaitedOn() {
+        return rpsChoicesBeingWaitedOn;
     }
 }

@@ -1,6 +1,31 @@
-menu:
+settings:
+  tax_amount: 10
+  min_wager: 1000
+  messages:
+    wager_start:
+      title: '&a&lWAGER'
+      message: '&aEnter your wager in chat!'
+      fade_in: 1
+      stay: 20
+      fade_out: 1
+    choice_pick:
+      title: '&a&lChoice'
+      message: '&aEnter Rock, Paper or Scissors in chat!'
+      fade_in: 1
+      stay: 20
+      fade_out: 1
+    wager_inputted: '&aYou have wagered $&f%wager%'
+    not_a_number: '&cThat was not a number, please try creating a game again.'
+    under_min_wager: '&cWager must be more than $1000'
+    not_enough_money: '&cYou do not have enough money to do that!'
+    win: '&a%winner% has won the Rock Paper Scissors and is rewarded $%win_amount%'
+
+main_menu:
   size: 45
   title: 'Rock Paper Scissors'
+  player_heads_name: '&6%player%'
+  player_heads_lore:
+    - '&a%wager%'
   items:
     stats:
       slot: 37
@@ -41,3 +66,10 @@ menu:
         - "&3#4) &f%leaderboard_4_name% &3%leaderboard_4_profit%"
         - "&3#5) &f%leaderboard_5_name% &3%leaderboard_5_profit%"
       enchanted: false
+
+game_menu:
+  size: 27
+  title: 'Rock Paper Scissors'
+  surrounding_glass_pane: LIME_STAINED_GLASS_PANE
+  middle_glass_pane: GRAY_STAINED_GLASS_PANE
+  player_head_name: '&6%player%'

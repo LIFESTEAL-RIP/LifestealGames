@@ -2,6 +2,8 @@ package com.etsuni.games.menus;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.menus.coinflip.CoinflipMainMenu;
+import com.etsuni.games.menus.rps.RPSGameMenu;
+import com.etsuni.games.menus.rps.RPSMainMenu;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -44,18 +46,20 @@ public class GamesMenu extends Menu {
 
         Configuration config = plugin.getMainMenuConfig();
         ConfigurationSection items = config.getConfigurationSection("games_menu.items");
-
+        int clickedSlot = event.getSlot();
         for(String item : items.getKeys(false)) {
-                if(item.equalsIgnoreCase("coinflip")) {
+                if(clickedSlot == config.getInt("games_menu.items.coinflip.slot")) {
                     CoinflipMainMenu coinflipMainMenu = new CoinflipMainMenu(plugin.getPlayerMenuUtility(player), plugin);
                     coinflipMainMenu.open();
                     return;
                 }
-                else if(item.equalsIgnoreCase("rps")) {
+                else if(clickedSlot == config.getInt("games_menu.items.rps.slot")) {
                     player.closeInventory();
-                    //TODO ADD RPS HANDLING
+                    RPSMainMenu rpsMainMenu = new RPSMainMenu(plugin.getPlayerMenuUtility(player), plugin);
+                    rpsMainMenu.open();
+                    return;
                 }
-                else if(item.equalsIgnoreCase("crash")) {
+                else if(clickedSlot == config.getInt("games_menu.items.crash.slot")) {
                     player.closeInventory();
                     //TODO ADD CRASH GAME HANDLING
                 }
