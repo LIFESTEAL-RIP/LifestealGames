@@ -76,6 +76,9 @@ public class CoinflipMainMenu extends PaginatedMenu {
                 }
             } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
                 Coinflip coinflip = CurrentGames.getInstance().getCoinflipGames().get(index - 1);
+                if(coinflip.getPlayer1().equals(player)) {
+                    return;
+                }
                 if(plugin.getEcon().getBalance(player) >= coinflip.getWager()) {
                     coinflip.setPlayer2(player);
                     coinflip.start();
