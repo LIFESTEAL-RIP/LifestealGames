@@ -1,6 +1,7 @@
 package com.etsuni.games;
 
 import com.etsuni.games.commands.Commands;
+import com.etsuni.games.games.Events;
 import com.etsuni.games.menus.MenuListener;
 import com.etsuni.games.menus.PlayerMenuUtility;
 import net.milkbowl.vault.economy.Economy;
@@ -44,6 +45,7 @@ public final class Games extends JavaPlugin {
         this.getCommand("games").setExecutor(new Commands(this));
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
+        this.getServer().getPluginManager().registerEvents(new Events(this), this);
     }
 
     @Override

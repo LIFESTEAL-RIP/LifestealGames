@@ -1,10 +1,13 @@
 package com.etsuni.games.menus.coinflip;
 
 import com.etsuni.games.Games;
+import com.etsuni.games.games.ChatWagers;
 import com.etsuni.games.games.Coinflip;
 import com.etsuni.games.games.CurrentGames;
-import com.etsuni.games.menus.Menu;
+import com.etsuni.games.games.GameType;
+import com.etsuni.games.menus.PaginatedMenu;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -22,7 +25,7 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class CoinflipMainMenu extends Menu {
+public class CoinflipMainMenu extends PaginatedMenu {
     private final Games plugin;
 
     public CoinflipMainMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
@@ -51,6 +54,7 @@ public class CoinflipMainMenu extends Menu {
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
+                    ChatWagers.getInstance().getWaitingList().put(player, GameType.COINFLIP);
                     player.closeInventory();
                     player.sendTitle(
                             ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.title")),
@@ -59,15 +63,27 @@ public class CoinflipMainMenu extends Menu {
                             config.getInt("settings.messages.wager_start.stay"),
                             config.getInt("settings.messages.wager_start.fade_out"));
                 }
-            } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
-                ItemStack head = inventory.getItem(slot);
-                SkullMeta meta = (SkullMeta) head.getItemMeta();
-                Player p = meta.getOwningPlayer().getPlayer();
-                for(Coinflip coinflip : CurrentGames.getInstance().getCoinflipGames()) {
-                    if(coinflip.getPlayer1().equals(p)) {
-                        coinflip.start();
+                else if(item.equalsIgnoreCase("previous_page")) {
+                    if(page > 0) {
+                        page = page - 1;
                     }
                 }
+                else if(item.equalsIgnoreCase("next_page")) {
+                    if(!((index + 1) >= CurrentGames.getInstance().getCoinflipGames().size())) {
+                        page = page + 1;
+                        open();
+                    }
+                }
+            } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
+                Coinflip coinflip = CurrentGames.getInstance().getCoinflipGames().get(index - 1);
+                if(plugin.getEcon().getBalance(player) >= coinflip.getWager()) {
+                    coinflip.setPlayer2(player);
+                    coinflip.start();
+                } else {
+                    player.closeInventory();
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.not_enough_money")));
+                }
+                return;
             }
         }
     }
@@ -109,15 +125,26 @@ public class CoinflipMainMenu extends Menu {
             itemStack.setItemMeta(meta);
             inventory.setItem(items.getInt(item + ".slot"), itemStack);
         }
+        setMaxItemsPerPage(getSlots() - 9);
+
         List<Coinflip> coinflips = CurrentGames.getInstance().getCoinflipGames();
-        for(int i = 0; i < coinflips.size(); i++) {
-            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-            SkullMeta meta = (SkullMeta) head.getItemMeta();
-            Objects.requireNonNull(meta).setOwningPlayer(coinflips.get(i).getPlayer1());
-            meta.setDisplayName(Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.player_heads_name"))
-                    .replace("%player%", coinflips.get(i).getPlayer1().getDisplayName()));
-            head.setItemMeta(meta);
-            inventory.setItem(i, head);
+        for(int i = 0; i < getMaxItemsPerPage(); i++) {
+            index = getMaxItemsPerPage() * page + i;
+            if(index >= coinflips.size()) break;
+            if(coinflips.get(index) != null) {
+                ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+                SkullMeta meta = (SkullMeta) head.getItemMeta();
+                List<String> lore = new ArrayList<>();
+                for(String str : config.getStringList("game_menu.player_heads_lore")) {
+                    lore.add(ChatColor.translateAlternateColorCodes('&', str.replace("%wager%", coinflips.get(index).getWager().toString())));
+                }
+                Objects.requireNonNull(meta).setOwningPlayer(coinflips.get(i).getPlayer1());
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.player_heads_name")
+                        .replace("%player%", ChatColor.stripColor(coinflips.get(i).getPlayer1().getDisplayName())))));
+                meta.setLore(lore);
+                head.setItemMeta(meta);
+                inventory.setItem(index, head);
+            }
         }
     }
 }

@@ -19,9 +19,6 @@ public class CoinflipGameMenu extends Menu {
 
     private final Games plugin;
     private final Coinflip coinflip;
-    private int taskId;
-    private int flipCount = 0;
-    private Player currentPlayer;
 
     public CoinflipGameMenu(PlayerMenuUtility playerMenuUtility, Games plugin, Coinflip coinflip) {
         super(playerMenuUtility, plugin);
@@ -49,20 +46,16 @@ public class CoinflipGameMenu extends Menu {
         for(int i = 0; i < getInventory().getSize(); i++) {
             getInventory().setItem(i, new ItemStack(Material.GRAY_STAINED_GLASS_PANE));
         }
-        BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-        SkullMeta meta = (SkullMeta) head.getItemMeta();
-        currentPlayer = coinflip.getPlayer1();
-
-
-
+        setPlayerHead(this.coinflip.getCurrentPlayerHead());
     }
+
+
 
     public void setPlayerHead(Player player) {
         ItemStack head = new ItemStack(Material.PLAYER_HEAD);
         SkullMeta meta = (SkullMeta) head.getItemMeta();
         meta.setOwningPlayer(player);
-        meta.setDisplayName(plugin.getCoinflipConfig().getString("game_menu.player_head_name").replace("%player%", player.getDisplayName()));
+        //meta.setDisplayName(plugin.getCoinflipConfig().getString("game_menu.player_head_name").replace("%player%", player.getDisplayName()));
         head.setItemMeta(meta);
         inventory.setItem(13, head);
     }

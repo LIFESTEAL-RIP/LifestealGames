@@ -1,5 +1,6 @@
 settings:
   tax_amount: 10
+  min_wager: 1000
   messages:
     wager_start:
       title: '&a&lWAGER'
@@ -8,15 +9,22 @@ settings:
       stay: 20
       fade_out: 1
     wager_inputted: '&aYou have wagered $&f%wager%'
+    not_a_number: '&cThat was not a number, please try creating a game again.'
+    under_min_wager: '&cWager must be more than $1000'
+    not_enough_money: '&cYou do not have enough money to do that!'
+    win: '&a%winner% has won the coinflip and is rewarded $%win_amount%'
+
 
 
 main_menu:
   size: 45
   title: 'Coinflip'
   player_heads_name: '&6%player%'
+  player_heads_lore:
+    - '&a%wager%'
   items:
     stats:
-      slot: 37
+      slot: 36
       name: '&3&lStats'
       material: PLAYER_HEAD
       lore:
@@ -60,6 +68,7 @@ game_menu:
   title: 'Coinflip'
   glass_pane: GRAY_STAINED_GLASS_PANE
   player_head_name: '&6%player%'
-  flip_amount: 10
+  min_flip_amount: 5
+  max_flip_amount: 10
   #Flip frequency is in ticks.  20 ticks == 1 second
   flip_frequency: 10
