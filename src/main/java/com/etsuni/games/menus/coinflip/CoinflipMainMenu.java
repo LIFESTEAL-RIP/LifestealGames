@@ -1,6 +1,10 @@
-package com.etsuni.games.menus;
+package com.etsuni.games.menus.coinflip;
 
 import com.etsuni.games.Games;
+import com.etsuni.games.games.Coinflip;
+import com.etsuni.games.games.CurrentGames;
+import com.etsuni.games.menus.Menu;
+import com.etsuni.games.menus.PlayerMenuUtility;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -18,22 +22,22 @@ import java.util.List;
 import java.util.Objects;
 
 
-public class CoinflipMenu extends Menu {
+public class CoinflipMainMenu extends Menu {
     private final Games plugin;
 
-    public CoinflipMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
+    public CoinflipMainMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
         super(playerMenuUtility, plugin);
         this.plugin = plugin;
     }
 
     @Override
     public String getMenuName() {
-        return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getCoinflipConfig().getString("menu.title")));
+        return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.title")));
     }
 
     @Override
     public int getSlots() {
-        return plugin.getCoinflipConfig().getInt("menu.size");
+        return plugin.getCoinflipConfig().getInt("main_menu.size");
     }
 
     @Override
@@ -42,7 +46,7 @@ public class CoinflipMenu extends Menu {
 
         Configuration config = plugin.getCoinflipConfig();
         int slot = event.getSlot();
-        ConfigurationSection items = config.getConfigurationSection("menu.items");
+        ConfigurationSection items = config.getConfigurationSection("main_menu.items");
 
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
@@ -55,6 +59,15 @@ public class CoinflipMenu extends Menu {
                             config.getInt("settings.messages.wager_start.stay"),
                             config.getInt("settings.messages.wager_start.fade_out"));
                 }
+            } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
+                ItemStack head = inventory.getItem(slot);
+                SkullMeta meta = (SkullMeta) head.getItemMeta();
+                Player p = meta.getOwningPlayer().getPlayer();
+                for(Coinflip coinflip : CurrentGames.getInstance().getCoinflipGames()) {
+                    if(coinflip.getPlayer1().equals(p)) {
+                        coinflip.start();
+                    }
+                }
             }
         }
     }
@@ -63,9 +76,9 @@ public class CoinflipMenu extends Menu {
     public void setMenuItems() {
         //TODO ADD STAT HANDLING
         //TODO ADD LEADERBOARD HANDLING
-        Configuration config = plugin.getMainMenuConfig();
+        Configuration config = plugin.getCoinflipConfig();
 
-        ConfigurationSection items = config.getConfigurationSection("games_menu.items");
+        ConfigurationSection items = config.getConfigurationSection("main_menu.items");
 
         for(String item : items.getKeys(false)) {
             ItemStack itemStack = new ItemStack(Material.valueOf(items.getString(item + ".material")));
@@ -78,7 +91,6 @@ public class CoinflipMenu extends Menu {
             } else{
                 meta = itemStack.getItemMeta();
             }
-
 
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', items.getString(item + ".name")));
             List<String> lore = new ArrayList<>();
@@ -96,6 +108,16 @@ public class CoinflipMenu extends Menu {
 
             itemStack.setItemMeta(meta);
             inventory.setItem(items.getInt(item + ".slot"), itemStack);
+        }
+        List<Coinflip> coinflips = CurrentGames.getInstance().getCoinflipGames();
+        for(int i = 0; i < coinflips.size(); i++) {
+            ItemStack head = new ItemStack(Material.PLAYER_HEAD);
+            SkullMeta meta = (SkullMeta) head.getItemMeta();
+            Objects.requireNonNull(meta).setOwningPlayer(coinflips.get(i).getPlayer1());
+            meta.setDisplayName(Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.player_heads_name"))
+                    .replace("%player%", coinflips.get(i).getPlayer1().getDisplayName()));
+            head.setItemMeta(meta);
+            inventory.setItem(i, head);
         }
     }
 }

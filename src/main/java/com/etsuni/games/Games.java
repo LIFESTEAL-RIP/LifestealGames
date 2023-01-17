@@ -1,15 +1,20 @@
 package com.etsuni.games;
 
+import com.etsuni.games.commands.Commands;
+import com.etsuni.games.menus.MenuListener;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.logging.Logger;
 
 public final class Games extends JavaPlugin {
 
@@ -22,17 +27,28 @@ public final class Games extends JavaPlugin {
     private File crashFile;
     private FileConfiguration crashConfig;
 
+    public Economy econ = null;
+    private static final Logger log = Logger.getLogger("Minecraft");
+
     private static final HashMap<Player, PlayerMenuUtility> playerMenuUtilityMap = new HashMap<>();
 
     @Override
     public void onEnable() {
-        createConfigs();
 
+        if (!setupEconomy() ) {
+            log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
+            getServer().getPluginManager().disablePlugin(this);
+            return;
+        }
+        createConfigs();
+        this.getCommand("games").setExecutor(new Commands(this));
+
+        this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
     }
 
     @Override
     public void onDisable() {
-        // Plugin shutdown logic
+
     }
 
     private void createConfigs() {
@@ -121,5 +137,21 @@ public final class Games extends JavaPlugin {
 
             return playerMenuUtility;
         }
+    }
+
+    private boolean setupEconomy() {
+        if (getServer().getPluginManager().getPlugin("Vault") == null) {
+            return false;
+        }
+        RegisteredServiceProvider<Economy> rsp = getServer().getServicesManager().getRegistration(Economy.class);
+        if (rsp == null) {
+            return false;
+        }
+        econ = rsp.getProvider();
+        return econ != null;
+    }
+
+    public Economy getEcon() {
+        return this.econ;
     }
 }

@@ -1,4 +1,5 @@
 settings:
+  tax_amount: 10
   messages:
     wager_start:
       title: '&a&lWAGER'
@@ -9,9 +10,10 @@ settings:
     wager_inputted: '&aYou have wagered $&f%wager%'
 
 
-menu:
+main_menu:
   size: 45
   title: 'Coinflip'
+  player_heads_name: '&6%player%'
   items:
     stats:
       slot: 37
@@ -52,3 +54,12 @@ menu:
         - "&3#4) &f%leaderboard_4_name% &3%leaderboard_4_profit%"
         - "&3#5) &f%leaderboard_5_name% &3%leaderboard_5_profit%"
       enchanted: false
+
+game_menu:
+  size: 27
+  title: 'Coinflip'
+  glass_pane: GRAY_STAINED_GLASS_PANE
+  player_head_name: '&6%player%'
+  flip_amount: 10
+  #Flip frequency is in ticks.  20 ticks == 1 second
+  flip_frequency: 10

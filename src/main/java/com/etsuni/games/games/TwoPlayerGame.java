@@ -18,7 +18,14 @@ public class TwoPlayerGame {
         this.plugin = plugin;
     }
 
+    public void takeMoney(Player player) {
 
+    }
+
+    public void giveRewards(Integer tax, Player winner, Double amount) {
+        Double finalAmount = amount - (amount * (tax / 100));
+        plugin.getEcon().depositPlayer(winner, finalAmount);
+    }
 
     public Player getPlayer1() {
         return player1;

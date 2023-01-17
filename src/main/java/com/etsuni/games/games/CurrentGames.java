@@ -1,11 +1,8 @@
 package com.etsuni.games.games;
 
-import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class CurrentGames {
 

@@ -35,7 +35,7 @@ public class Events implements Listener {
 
             if(gameType.equals(GameType.COINFLIP)) {
                 Coinflip coinflip = new Coinflip(player, wager, plugin);
-                CurrentGames.getInstance().getCoinflipGames().add(coinflip);
+                coinflip.addToGamesList();
                 ChatWagers.getInstance().getWaitingList().remove(player);
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getCoinflipConfig().getString("wager_inputted")
                         .replace("%wager%", String.valueOf(wager))));

@@ -1,6 +1,8 @@
 package com.etsuni.games.menus;
 
 import com.etsuni.games.Games;
+import com.etsuni.games.menus.coinflip.CoinflipMainMenu;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -11,7 +13,6 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,15 +43,13 @@ public class GamesMenu extends Menu {
         Player player = (Player) event.getWhoClicked();
 
         Configuration config = plugin.getMainMenuConfig();
-        int slot = event.getSlot();
         ConfigurationSection items = config.getConfigurationSection("games_menu.items");
 
         for(String item : items.getKeys(false)) {
-            if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("coinflip")) {
-                    player.closeInventory();
-                    CoinflipMenu coinflipMenu = new CoinflipMenu(plugin.getPlayerMenuUtility(player), plugin);
-                    coinflipMenu.open();
+                    CoinflipMainMenu coinflipMainMenu = new CoinflipMainMenu(plugin.getPlayerMenuUtility(player), plugin);
+                    coinflipMainMenu.open();
+                    return;
                 }
                 else if(item.equalsIgnoreCase("rps")) {
                     player.closeInventory();
@@ -60,7 +59,6 @@ public class GamesMenu extends Menu {
                     player.closeInventory();
                     //TODO ADD CRASH GAME HANDLING
                 }
-            }
         }
     }
 
@@ -81,7 +79,7 @@ public class GamesMenu extends Menu {
             }
             meta.setLore(lore);
             if(items.getBoolean(item + ".enchanted")) {
-                itemStack.addEnchantment(Enchantment.ARROW_INFINITE, 1);
+                meta.addEnchant(Enchantment.DAMAGE_ALL, 1, true);
             }
 
             meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
