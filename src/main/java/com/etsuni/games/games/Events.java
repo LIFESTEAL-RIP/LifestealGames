@@ -105,6 +105,7 @@ public class Events implements Listener {
         if(msg.equalsIgnoreCase("rock") || msg.equalsIgnoreCase("paper") || msg.equalsIgnoreCase("scissors" )) {
             if(ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getPlayer1Choice() != null) {
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2Choice(RPS.Choice.valueOf(msg.toUpperCase()));
+                ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2(player);
                 BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
                 scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
                     @Override

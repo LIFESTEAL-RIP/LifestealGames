@@ -51,6 +51,7 @@ public class RPSGameMenu extends Menu {
             }
         }
         setPlayerHeads(this.rps.getPlayer1(), this.rps.getPlayer2());
+        setChoice(this.rps.getCounter());
     }
 
     public void setPlayerHeads(Player player1, Player player2) {

@@ -14,7 +14,7 @@ public class RPS extends TwoPlayerGame {
 
     private Choice player1Choice;
     private Choice player2Choice;
-    private int counter = 1;
+    private int counter = 0;
     private int taskId;
 
     enum Choice{
@@ -44,6 +44,7 @@ public class RPS extends TwoPlayerGame {
             @Override
             public void run() {
                 if(counter <= 3) {
+                    Bukkit.broadcastMessage("COUNTER: " + counter);
                     p1Menu.setChoice(counter);
                     p2Menu.setChoice(counter);
                     p1Menu.open();
@@ -63,6 +64,7 @@ public class RPS extends TwoPlayerGame {
                     scheduler.cancelTask(taskId);
                     return;
                 }
+                counter++;
             }
         }, 10, 20);
     }
@@ -117,5 +119,9 @@ public class RPS extends TwoPlayerGame {
 
     public void setPlayer2Choice(Choice p2Choice) {
         this.player2Choice = p2Choice;
+    }
+
+    public int getCounter() {
+        return counter;
     }
 }
