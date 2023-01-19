@@ -4,6 +4,8 @@ import com.etsuni.games.commands.Commands;
 import com.etsuni.games.games.Events;
 import com.etsuni.games.menus.MenuListener;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
+import com.mysql.cj.jdbc.MysqlDataSource;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -12,10 +14,15 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.File;
-import java.io.IOException;
+import javax.sql.DataSource;
+import java.io.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 public final class Games extends JavaPlugin {
 
@@ -27,11 +34,15 @@ public final class Games extends JavaPlugin {
     private FileConfiguration rpsConfig;
     private File crashFile;
     private FileConfiguration crashConfig;
+    private File mainConfigFile;
+    private FileConfiguration mainConfig;
 
     private Commands commands;
 
     public Economy econ = null;
     private static final Logger log = Logger.getLogger("Minecraft");
+
+    private DataSource dataSource;
 
     private static final HashMap<Player, PlayerMenuUtility> playerMenuUtilityMap = new HashMap<>();
 
@@ -50,6 +61,18 @@ public final class Games extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
+
+        try {
+            dataSource = initMySQLDataSource();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            initDb();
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -113,6 +136,20 @@ public final class Games extends JavaPlugin {
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
+
+        mainConfigFile = new File(getDataFolder(), "config.yml");
+        if(!mainConfigFile.exists()) {
+            mainConfigFile.getParentFile().mkdirs();
+            saveResource("config.yml", false);
+        }
+
+        mainConfig = new YamlConfiguration();
+
+        try {
+            mainConfig.load(mainConfigFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     public FileConfiguration getMainMenuConfig() {
@@ -159,5 +196,50 @@ public final class Games extends JavaPlugin {
 
     public Economy getEcon() {
         return this.econ;
+    }
+
+    private DataSource initMySQLDataSource() throws SQLException {
+        MysqlDataSource dataSource = new MysqlConnectionPoolDataSource();
+        dataSource.setServerName(mainConfig.getString("database.host"));
+        dataSource.setPortNumber(mainConfig.getInt("database.port"));
+        dataSource.setDatabaseName(mainConfig.getString("database.database"));
+        dataSource.setUser(mainConfig.getString("database.user"));
+        dataSource.setPassword(mainConfig.getString("database.password"));
+
+        testDataSource(dataSource);
+        return dataSource;
+    }
+
+    private void testDataSource(DataSource dataSource) throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            if (!conn.isValid(1)) {
+                throw new SQLException("Could not establish database connection.");
+            }
+        }
+    }
+
+    private void initDb() throws SQLException, IOException {
+        String setup;
+        try(InputStream in = getClassLoader().getResourceAsStream("dbsetup.sql")) {
+            setup = new BufferedReader(new InputStreamReader(in)).lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not read db setup file");
+            throw e;
+        }
+        String[] queries = setup.split(";");
+        // execute each query to the database.
+        for (String query : queries) {
+            // If you use the legacy way you have to check for empty queries here.
+            if (query.isEmpty()) continue;
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.execute();
+            }
+        }
+        getLogger().info("Database setup complete");
+    }
+
+    public DataSource getDataSource() {
+        return this.dataSource;
     }
 }
