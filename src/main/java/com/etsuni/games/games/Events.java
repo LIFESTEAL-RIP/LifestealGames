@@ -1,7 +1,6 @@
 package com.etsuni.games.games;
 
 import com.etsuni.games.Games;
-import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -81,7 +80,22 @@ public class Events implements Listener {
 
 
                 }
-                //TODO ADD RPS AND CRASH HANDLERS
+                else if(gameType.equals(GameType.CRASH)) {
+                    if(wager < plugin.getCrashConfig().getInt("settings.min_wager")) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                plugin.getCoinflipConfig().getString("settings.messages.under_min_wager")));
+                        ChatWagers.getInstance().getWaitingList().remove(player);
+                        event.setCancelled(true);
+                        return;
+                    }
+                    Crash crash = new Crash(player, wager, plugin);
+                    ChatWagers.getInstance().getWaitingList().remove(player);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getCrashConfig().getString("settings.messages.wager_inputted")
+                            .replace("%wager%", String.valueOf(wager))));
+                    crash.addToGamesList();
+                    crash.start();
+                    plugin.getEcon().withdrawPlayer(player, wager);
+                }
             } else {
                 if(gameType.equals(GameType.COINFLIP)) {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getCoinflipConfig().getString("settings.messages.not_enough_money")));

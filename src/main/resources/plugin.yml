@@ -6,3 +6,7 @@ depend: [Vault]
 commands:
   games:
     description: Opens Games Main Menu
+  cf:
+    description: Get to coinflip quickly
+  rps:
+    description: Get to rps quickly

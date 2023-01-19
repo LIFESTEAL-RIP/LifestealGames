@@ -28,6 +28,8 @@ public final class Games extends JavaPlugin {
     private File crashFile;
     private FileConfiguration crashConfig;
 
+    private Commands commands;
+
     public Economy econ = null;
     private static final Logger log = Logger.getLogger("Minecraft");
 
@@ -35,14 +37,16 @@ public final class Games extends JavaPlugin {
 
     @Override
     public void onEnable() {
-
+        commands = new Commands(this);
         if (!setupEconomy() ) {
             log.severe(String.format("[%s] - Disabled due to no Vault dependency found!", getDescription().getName()));
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
         createConfigs();
-        this.getCommand("games").setExecutor(new Commands(this));
+        this.getCommand("games").setExecutor(commands);
+        this.getCommand("cf").setExecutor(commands);
+        this.getCommand("rps").setExecutor(commands);
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         this.getServer().getPluginManager().registerEvents(new Events(this), this);

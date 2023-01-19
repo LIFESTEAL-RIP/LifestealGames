@@ -1,11 +1,11 @@
-package com.etsuni.games.menus.coinflip;
+package com.etsuni.games.menus.crash;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.games.ChatWagers;
 import com.etsuni.games.games.Coinflip;
 import com.etsuni.games.games.CurrentGames;
 import com.etsuni.games.games.GameType;
-import com.etsuni.games.menus.PaginatedMenu;
+import com.etsuni.games.menus.Menu;
 import com.etsuni.games.menus.PlayerMenuUtility;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -23,37 +23,37 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+public class CrashMainMenu extends Menu {
 
-public class CoinflipMainMenu extends PaginatedMenu {
     private final Games plugin;
 
-    public CoinflipMainMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
+    public CrashMainMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
         super(playerMenuUtility, plugin);
         this.plugin = plugin;
     }
 
     @Override
     public String getMenuName() {
-        return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.title")));
+        return ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getCrashConfig().getString("main_menu.title")));
     }
 
     @Override
     public int getSlots() {
-        return plugin.getCoinflipConfig().getInt("main_menu.size");
+        return plugin.getCrashConfig().getInt("main_menu.size");
     }
 
     @Override
     public void handleMenu(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
 
-        Configuration config = plugin.getCoinflipConfig();
+        Configuration config = plugin.getCrashConfig();
         int slot = event.getSlot();
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");
 
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
-                    ChatWagers.getInstance().getWaitingList().put(player, GameType.COINFLIP);
+                    ChatWagers.getInstance().getWaitingList().put(player, GameType.CRASH);
                     player.closeInventory();
                     player.sendTitle(
                             ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.title")),
@@ -62,30 +62,6 @@ public class CoinflipMainMenu extends PaginatedMenu {
                             config.getInt("settings.messages.wager_start.stay"),
                             config.getInt("settings.messages.wager_start.fade_out"));
                 }
-                else if(item.equalsIgnoreCase("previous_page")) {
-                    if(page > 0) {
-                        page = page - 1;
-                    }
-                }
-                else if(item.equalsIgnoreCase("next_page")) {
-                    if(!((index + 1) >= CurrentGames.getInstance().getCoinflipGames().size())) {
-                        page = page + 1;
-                        open();
-                    }
-                }
-            } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
-                Coinflip coinflip = CurrentGames.getInstance().getCoinflipGames().get(index - 1);
-                if(coinflip.getPlayer1().equals(player)) {
-                    return;
-                }
-                if(plugin.getEcon().getBalance(player) >= coinflip.getWager()) {
-                    coinflip.setPlayer2(player);
-                    coinflip.start();
-                } else {
-                    player.closeInventory();
-                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.not_enough_money")));
-                }
-                return;
             }
         }
     }
@@ -126,27 +102,6 @@ public class CoinflipMainMenu extends PaginatedMenu {
 
             itemStack.setItemMeta(meta);
             inventory.setItem(items.getInt(item + ".slot"), itemStack);
-        }
-        setMaxItemsPerPage(getSlots() - 9);
-
-        List<Coinflip> coinflips = CurrentGames.getInstance().getCoinflipGames();
-        for(int i = 0; i < getMaxItemsPerPage(); i++) {
-            index = getMaxItemsPerPage() * page + i;
-            if(index >= coinflips.size()) break;
-            if(coinflips.get(index) != null) {
-                ItemStack head = new ItemStack(Material.PLAYER_HEAD);
-                SkullMeta meta = (SkullMeta) head.getItemMeta();
-                List<String> lore = new ArrayList<>();
-                for(String str : config.getStringList("main_menu.player_heads_lore")) {
-                    lore.add(ChatColor.translateAlternateColorCodes('&', str.replace("%wager%", coinflips.get(index).getWager().toString())));
-                }
-                Objects.requireNonNull(meta).setOwningPlayer(coinflips.get(i).getPlayer1());
-                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&',Objects.requireNonNull(plugin.getCoinflipConfig().getString("main_menu.player_heads_name")
-                        .replace("%player%", ChatColor.stripColor(coinflips.get(i).getPlayer1().getDisplayName())))));
-                meta.setLore(lore);
-                head.setItemMeta(meta);
-                inventory.setItem(index, head);
-            }
         }
     }
 }
