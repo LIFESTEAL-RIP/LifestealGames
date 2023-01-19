@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
-import org.bukkit.scheduler.BukkitRunnable;
+
 import org.bukkit.scheduler.BukkitScheduler;
 
 public class RPS extends TwoPlayerGame {
@@ -34,6 +34,7 @@ public class RPS extends TwoPlayerGame {
     }
 
     public void start() {
+        removeFromList();
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         RPSGameMenu p1Menu = new RPSGameMenu(plugin.getPlayerMenuUtility(player1), plugin, this);
         RPSGameMenu p2Menu = new RPSGameMenu(plugin.getPlayerMenuUtility(player2), plugin, this);
@@ -44,7 +45,7 @@ public class RPS extends TwoPlayerGame {
             @Override
             public void run() {
                 if(counter <= 3) {
-                    Bukkit.broadcastMessage("COUNTER: " + counter);
+
                     p1Menu.setChoice(counter);
                     p2Menu.setChoice(counter);
                     p1Menu.open();
@@ -55,7 +56,7 @@ public class RPS extends TwoPlayerGame {
                     scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
                         @Override
                         public void run() {
-                            Bukkit.broadcastMessage("winner!!");
+                            handleWinner();
                             player1.closeInventory();
                             player2.closeInventory();
                         }
@@ -69,27 +70,74 @@ public class RPS extends TwoPlayerGame {
         }, 10, 20);
     }
 
-    private Player getWinner() {
-
+    private void handleWinner() {
+        Double winAmount;
         if(player1Choice.equals(Choice.ROCK) && player2Choice.equals(Choice.SCISSORS)) {
-            return this.player1;
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
+            sendMessages(player1, winAmount);
+            return;
         }
         else if(player1Choice.equals(Choice.ROCK) && player2Choice.equals(Choice.PAPER)) {
-            return this.player2;
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
+            sendMessages(player2, winAmount);
+            return;
         }
         else if(player1Choice.equals(Choice.PAPER) && player2Choice.equals(Choice.ROCK)) {
-            return this.player1;
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
+            sendMessages(player1, winAmount);
+            return;
         }
         else if(player1Choice.equals(Choice.PAPER) && player2Choice.equals(Choice.SCISSORS)) {
-            return this.player2;
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
+            sendMessages(player2, winAmount);
+            return;
+        }
+        else if(player1Choice.equals(Choice.SCISSORS) && player2Choice.equals(Choice.PAPER)) {
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
+            sendMessages(player1, winAmount);
+            return;
+        }
+        else if(player1Choice.equals(Choice.SCISSORS) && player2Choice.equals(Choice.ROCK)) {
+            winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
+            sendMessages(player2, winAmount);
+            return;
         }
 
-        return null;
+        //Give players money back if no one wins, with tax taken out. Might be up for change.
+        winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
+        giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
+        sendMessages(null, winAmount);
+
+    }
+
+    private void sendMessages(Player winner, Double winAmount) {
+
+        if(winner != null) {
+            player1.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getRpsConfig().getString("settings.messages.win")
+                            .replace("%winner%", ChatColor.stripColor(winner.getDisplayName()))
+                            .replace("%win_amount%", String.valueOf(winAmount.longValue()))));
+
+            player2.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getRpsConfig().getString("settings.messages.win")
+                            .replace("%winner%", ChatColor.stripColor(winner.getDisplayName()))
+                            .replace("%win_amount%", String.valueOf(winAmount.longValue()))));
+        } else {
+            player1.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getRpsConfig().getString("settings.messages.no_winner")
+                            .replace("%amount%", String.valueOf(winAmount.longValue()))));
+
+            player2.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getRpsConfig().getString("settings.messages.no_winner")
+                            .replace("%amount%", String.valueOf(winAmount.longValue()))));
+        }
+
     }
 
     public void addToList() {
         CurrentGames.getInstance().getRpsGames().add(this);
     }
+
     public void removeFromList() {
         CurrentGames.getInstance().getRpsGames().remove(this);
     }

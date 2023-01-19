@@ -11,6 +11,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.scheduler.BukkitScheduler;
 
+import java.util.Objects;
+
 public class Events implements Listener {
     private final Games plugin;
 
@@ -71,10 +73,12 @@ public class Events implements Listener {
                         return;
                     }
                     RPS rps = new RPS(player, wager, plugin);
-                    rps.addToList();
                     ChatWagers.getInstance().getWaitingList().remove(player);
+                    player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getRpsConfig().getString("settings.messages.wager_inputted")
+                            .replace("%wager%", String.valueOf(wager))));
                     ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().put(player, rps);
                     rps.sendChoiceTitle(player);
+
 
                 }
                 //TODO ADD RPS AND CRASH HANDLERS
@@ -94,6 +98,7 @@ public class Events implements Listener {
     //Separating this just to keep code clean
     @EventHandler
     public void lookForRPSChoice(AsyncPlayerChatEvent event) {
+        event.setCancelled(true);
         Player player = event.getPlayer();
 
         if(!ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().containsKey(player)) {
@@ -102,7 +107,7 @@ public class Events implements Listener {
 
         String msg = event.getMessage();
 
-        if(msg.equalsIgnoreCase("rock") || msg.equalsIgnoreCase("paper") || msg.equalsIgnoreCase("scissors" )) {
+        if(msg.equalsIgnoreCase("rock") || msg.equalsIgnoreCase("paper") || msg.equalsIgnoreCase("scissors")) {
             if(ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getPlayer1Choice() != null) {
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2Choice(RPS.Choice.valueOf(msg.toUpperCase()));
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2(player);
@@ -111,19 +116,23 @@ public class Events implements Listener {
                     @Override
                     public void run() {
                         ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).start();
+                        plugin.getEcon().withdrawPlayer(player, ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getWager());
                     }
                 }, 1);
 
             } else {
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer1Choice(RPS.Choice.valueOf(msg.toUpperCase()));
+                player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                        plugin.getRpsConfig().getString("settings.messages.choice_inputted").replace("%choice%", msg)));
+                ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).addToList();
+                plugin.getEcon().withdrawPlayer(player, ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getWager());
             }
 
         } else {
-            Bukkit.broadcastMessage("not rps choice");
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getRpsConfig().getString(
+                     "settings.messages.not_rps_choice"))));
+            ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().remove(player);
         }
-    }
 
-    public void startRPS(RPS rps) {
-        rps.start();
     }
 }

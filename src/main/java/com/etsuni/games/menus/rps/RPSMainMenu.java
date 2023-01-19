@@ -134,7 +134,7 @@ public class RPSMainMenu extends PaginatedMenu {
                 ItemStack head = new ItemStack(Material.PLAYER_HEAD);
                 SkullMeta meta = (SkullMeta) head.getItemMeta();
                 List<String> lore = new ArrayList<>();
-                for(String str : config.getStringList("game_menu.player_heads_lore")) {
+                for(String str : config.getStringList("main_menu.player_heads_lore")) {
                     lore.add(ChatColor.translateAlternateColorCodes('&', str.replace("%wager%", rpsGames.get(index).getWager().toString())));
                 }
                 Objects.requireNonNull(meta).setOwningPlayer(rpsGames.get(i).getPlayer1());

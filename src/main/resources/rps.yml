@@ -15,9 +15,12 @@ settings:
       stay: 20
       fade_out: 1
     wager_inputted: '&aYou have wagered $&f%wager%'
+    choice_inputted: '&aYou have selected %choice%'
     not_a_number: '&cThat was not a number, please try creating a game again.'
+    not_rps_choice: '&cThat was not a proper choice, please go back in the menu and try again.'
     under_min_wager: '&cWager must be more than $1000'
     not_enough_money: '&cYou do not have enough money to do that!'
+    no_winner: '&aNo one has won and  the amount given back is %amount%'
     win: '&a%winner% has won the Rock Paper Scissors and is rewarded $%win_amount%'
 
 main_menu:
