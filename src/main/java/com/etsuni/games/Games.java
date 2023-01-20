@@ -4,6 +4,7 @@ import com.etsuni.games.commands.Commands;
 import com.etsuni.games.games.Events;
 import com.etsuni.games.menus.MenuListener;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import com.etsuni.games.utils.JoinListener;
 import com.mysql.cj.jdbc.MysqlConnectionPoolDataSource;
 import com.mysql.cj.jdbc.MysqlDataSource;
 import net.milkbowl.vault.economy.Economy;
@@ -42,7 +43,7 @@ public final class Games extends JavaPlugin {
     public Economy econ = null;
     private static final Logger log = Logger.getLogger("Minecraft");
 
-//    private DataSource dataSource;
+    private DataSource dataSource;
 
     private static final HashMap<Player, PlayerMenuUtility> playerMenuUtilityMap = new HashMap<>();
 
@@ -61,18 +62,19 @@ public final class Games extends JavaPlugin {
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         this.getServer().getPluginManager().registerEvents(new Events(this), this);
+        this.getServer().getPluginManager().registerEvents(new JoinListener(this), this);
 
-//        try {
-//            dataSource = initMySQLDataSource();
-//        } catch (SQLException e) {
-//            throw new RuntimeException(e);
-//        }
-//
-//        try {
-//            initDb();
-//        } catch (SQLException | IOException e) {
-//            throw new RuntimeException(e);
-//        }
+        try {
+            dataSource = initMySQLDataSource();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            initDb();
+        } catch (SQLException | IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -198,48 +200,48 @@ public final class Games extends JavaPlugin {
         return this.econ;
     }
 
-//    private DataSource initMySQLDataSource() throws SQLException {
-//        MysqlDataSource dataSource = new MysqlConnectionPoolDataSource();
-//        dataSource.setServerName(mainConfig.getString("database.host"));
-//        dataSource.setPortNumber(mainConfig.getInt("database.port"));
-//        dataSource.setDatabaseName(mainConfig.getString("database.database"));
-//        dataSource.setUser(mainConfig.getString("database.user"));
-//        dataSource.setPassword(mainConfig.getString("database.password"));
-//
-//        testDataSource(dataSource);
-//        return dataSource;
-//    }
-//
-//    private void testDataSource(DataSource dataSource) throws SQLException {
-//        try (Connection conn = dataSource.getConnection()) {
-//            if (!conn.isValid(1)) {
-//                throw new SQLException("Could not establish database connection.");
-//            }
-//        }
-//    }
-//
-//    private void initDb() throws SQLException, IOException {
-//        String setup;
-//        try(InputStream in = getClassLoader().getResourceAsStream("dbsetup.sql")) {
-//            setup = new BufferedReader(new InputStreamReader(in)).lines().collect(Collectors.joining("\n"));
-//        } catch (IOException e) {
-//            getLogger().log(Level.SEVERE, "Could not read db setup file");
-//            throw e;
-//        }
-//        String[] queries = setup.split(";");
-//        // execute each query to the database.
-//        for (String query : queries) {
-//            // If you use the legacy way you have to check for empty queries here.
-//            if (query.isEmpty()) continue;
-//            try (Connection conn = dataSource.getConnection();
-//                 PreparedStatement stmt = conn.prepareStatement(query)) {
-//                stmt.execute();
-//            }
-//        }
-//        getLogger().info("Database setup complete");
-//    }
-//
-//    public DataSource getDataSource() {
-//        return this.dataSource;
-//    }
+    private DataSource initMySQLDataSource() throws SQLException {
+        MysqlDataSource dataSource = new MysqlConnectionPoolDataSource();
+        dataSource.setServerName(mainConfig.getString("database.host"));
+        dataSource.setPortNumber(mainConfig.getInt("database.port"));
+        dataSource.setDatabaseName(mainConfig.getString("database.database"));
+        dataSource.setUser(mainConfig.getString("database.user"));
+        dataSource.setPassword(mainConfig.getString("database.password"));
+
+        testDataSource(dataSource);
+        return dataSource;
+    }
+
+    private void testDataSource(DataSource dataSource) throws SQLException {
+        try (Connection conn = dataSource.getConnection()) {
+            if (!conn.isValid(1)) {
+                throw new SQLException("Could not establish database connection.");
+            }
+        }
+    }
+
+    private void initDb() throws SQLException, IOException {
+        String setup;
+        try(InputStream in = getClassLoader().getResourceAsStream("dbsetup.sql")) {
+            setup = new BufferedReader(new InputStreamReader(in)).lines().collect(Collectors.joining("\n"));
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Could not read db setup file");
+            throw e;
+        }
+        String[] queries = setup.split(";");
+        // execute each query to the database.
+        for (String query : queries) {
+            // If you use the legacy way you have to check for empty queries here.
+            if (query.isEmpty()) continue;
+            try (Connection conn = dataSource.getConnection();
+                 PreparedStatement stmt = conn.prepareStatement(query)) {
+                stmt.execute();
+            }
+        }
+        getLogger().info("Database setup complete");
+    }
+
+    public DataSource getDataSource() {
+        return this.dataSource;
+    }
 }
