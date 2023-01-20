@@ -30,6 +30,7 @@ public class CrashMainMenu extends Menu {
     public CrashMainMenu(PlayerMenuUtility playerMenuUtility, Games plugin) {
         super(playerMenuUtility, plugin);
         this.plugin = plugin;
+
     }
 
     @Override
@@ -70,7 +71,7 @@ public class CrashMainMenu extends Menu {
     public void setMenuItems() {
         //TODO ADD STAT HANDLING
         //TODO ADD LEADERBOARD HANDLING
-        Configuration config = plugin.getCoinflipConfig();
+        Configuration config = plugin.getCrashConfig();
 
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");
 

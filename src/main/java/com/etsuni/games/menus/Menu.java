@@ -4,6 +4,7 @@ package com.etsuni.games.menus;
 import com.etsuni.games.Games;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
@@ -30,6 +31,14 @@ public abstract class Menu implements InventoryHolder {
 
     public void open() {
         inventory = Bukkit.createInventory(this, getSlots(), getMenuName());
+
+        this.setMenuItems();
+
+        playerMenuUtility.getOwner().openInventory(inventory);
+    }
+
+    public void openHopper() {
+        inventory = Bukkit.createInventory(this, InventoryType.HOPPER, getMenuName());
 
         this.setMenuItems();
 

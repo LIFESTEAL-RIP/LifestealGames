@@ -64,7 +64,7 @@ public class Events implements Listener {
                     plugin.getEcon().withdrawPlayer(player, wager);
                 }
                 else if (gameType.equals(GameType.RPS)) {
-                    if(wager < plugin.getCoinflipConfig().getInt("settings.min_wager")) {
+                    if(wager < plugin.getRpsConfig().getInt("settings.min_wager")) {
                         player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                 plugin.getCoinflipConfig().getString("settings.messages.under_min_wager")));
                         ChatWagers.getInstance().getWaitingList().remove(player);
@@ -93,7 +93,16 @@ public class Events implements Listener {
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getCrashConfig().getString("settings.messages.wager_inputted")
                             .replace("%wager%", String.valueOf(wager))));
                     crash.addToGamesList();
-                    crash.start();
+                    BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
+
+                    //Make this a sync task because InventoryOpenEvent needs to be triggered synchronously not async.
+                    scheduler.scheduleSyncDelayedTask(plugin, new Runnable() {
+                        @Override
+                        public void run() {
+                            crash.start();
+                        }
+                    }, 1);
+
                     plugin.getEcon().withdrawPlayer(player, wager);
                 }
             } else {

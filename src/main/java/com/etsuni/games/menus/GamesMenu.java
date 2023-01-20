@@ -2,9 +2,8 @@ package com.etsuni.games.menus;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.menus.coinflip.CoinflipMainMenu;
-import com.etsuni.games.menus.rps.RPSGameMenu;
+import com.etsuni.games.menus.crash.CrashMainMenu;
 import com.etsuni.games.menus.rps.RPSMainMenu;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
@@ -41,7 +40,6 @@ public class GamesMenu extends Menu {
 
     @Override
     public void handleMenu(InventoryClickEvent event) {
-        //TODO MAKE IT SO WHEN PLAYER CLICKS ITEMS WILL CLOSE THIS INV AND OPEN OTHER RESPECTIVE INV
         Player player = (Player) event.getWhoClicked();
 
         Configuration config = plugin.getMainMenuConfig();
@@ -61,7 +59,9 @@ public class GamesMenu extends Menu {
                 }
                 else if(clickedSlot == config.getInt("games_menu.items.crash.slot")) {
                     player.closeInventory();
-                    //TODO ADD CRASH GAME HANDLING
+                    CrashMainMenu crashMainMenu = new CrashMainMenu(plugin.getPlayerMenuUtility(player), plugin);
+                    crashMainMenu.openHopper();
+                   return;
                 }
         }
     }

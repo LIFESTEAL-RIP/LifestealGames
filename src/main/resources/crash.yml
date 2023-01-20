@@ -16,7 +16,6 @@ settings:
 
 
 main_menu:
-  size: 45
   title: 'Crash'
   items:
     stats:
@@ -32,7 +31,7 @@ main_menu:
     create_game:
       slot: 2
       name: '&3&lCreate Game'
-      material: SHEARS
+      material: TNT
       lore:
       enchanted: true
     leaderboard:
@@ -46,3 +45,13 @@ main_menu:
         - "&3#4) &f%leaderboard_4_name% &3%leaderboard_4_profit%"
         - "&3#5) &f%leaderboard_5_name% &3%leaderboard_5_profit%"
       enchanted: false
+
+game_menu:
+  crash_chance: 25
+  cash_out_item:
+    material: BARRIER
+    name: '&aGame Status (Click to Cash Out)'
+    lore:
+      - '&b%multiplier%'
+      - ''
+      - '&eCurrent Winnings: &f$%current_winnings%'
