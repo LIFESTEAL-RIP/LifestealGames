@@ -30,6 +30,7 @@ public class Crash {
     private boolean stepUp = false;
     private int currentIndexReducer = 8;
     private List<Integer> glassSlots = new ArrayList<>();
+    private boolean crashed = false;
 
     public Crash(Player player, Long wager, Games plugin) {
         this.plugin = plugin;
@@ -42,7 +43,6 @@ public class Crash {
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         removeFromGamesList();
         CrashGameMenu menu = new CrashGameMenu(plugin.getPlayerMenuUtility(player), this, plugin);
-        menu.open();
         Configuration config = plugin.getCrashConfig();
         ConfigurationSection section = config.getConfigurationSection("game_menu");
 
@@ -54,21 +54,30 @@ public class Crash {
                 boolean val = rand.nextInt(100) < chance;
                 if(val) {
                     crash();
+                    crashed = true;
+                    menu.open();
                 } else {
                     menu.open();
-                    DecimalFormat df = new DecimalFormat("0.00");
-                    Bukkit.broadcastMessage("CURRENT MULT: " + df.format(currentMultiplier));
                 }
                 currentMultiplier = currentMultiplier + 0.01D;
             }
-        },0, 20);
+        },0, 5);
     }
 
     public void crash() {
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
-        DecimalFormat df = new DecimalFormat("0.00");
-        Bukkit.broadcastMessage("CRASHED AT: " + df.format(currentMultiplier));
         scheduler.cancelTask(taskId);
+    }
+
+    public void giveRewards() {
+
+        int tax = plugin.getCrashConfig().getInt("settings.tax_amount");
+        double amount = getWager() *  currentMultiplier;
+        double taxed = amount * (tax / 100.00);
+        double finalAmount = (amount - taxed);
+
+        plugin.getEcon().depositPlayer(player, finalAmount);
+
     }
 
     public void addToGamesList() {
@@ -143,4 +152,7 @@ public class Crash {
         return glassSlots;
     }
 
+    public boolean isCrashed() {
+        return crashed;
+    }
 }

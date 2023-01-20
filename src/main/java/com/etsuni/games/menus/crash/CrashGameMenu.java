@@ -43,6 +43,18 @@ public class CrashGameMenu extends Menu {
     public void handleMenu(InventoryClickEvent event) {
         Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
+
+        if(crash.isCrashed()) {
+            return;
+        }
+
+        if(slot == 49 ) {
+            crash.giveRewards();
+            player.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                    plugin.getCrashConfig().getString("settings.messages.win")
+                            .replace("%win_amount%", String.valueOf(crash.getCurrentWinnings().longValue()))));
+
+        }
     }
 
     @Override
@@ -60,6 +72,9 @@ public class CrashGameMenu extends Menu {
                 itemStack.setItemMeta(meta);
                 inventory.setItem(i, itemStack);
             }
+        }
+        if(crash.isCrashed()) {
+            doCrashAnimation();
         }
         setPlayerHead();
         setCashOutItem();
@@ -98,6 +113,8 @@ public class CrashGameMenu extends Menu {
                 crash.getGlassSlots().add(glassSlot);
                 crash.setStepUp(true);
             }
+        } else {
+            inventory.setItem(crash.getCurrentHeadIndex(), head);
         }
 
 
@@ -116,11 +133,32 @@ public class CrashGameMenu extends Menu {
     }
 
     public boolean animate() {
-        String multToString = crash.getCurrentMultiplier().toString();
+        if(crash.getCurrentMultiplier() == 1.00) {
+            return false;
+        }
+        DecimalFormat df = new DecimalFormat("0.00");
+        String multToString = df.format(crash.getCurrentMultiplier());
         String[] multStringArr = multToString.split("\\.");
-        int decimalPlaceNumber = Integer.parseInt(multStringArr[2]);
+        int decimalPlaceNumber = Integer.parseInt(multStringArr[1]);
 
-        return decimalPlaceNumber == 0;
+
+        return decimalPlaceNumber % 10 == 0;
+    }
+
+    public void doCrashAnimation() {
+        int STOP_INDEX = 45;
+        ItemStack redGlass = new ItemStack(Material.RED_STAINED_GLASS_PANE);
+        ItemMeta meta = redGlass.getItemMeta();
+        meta.setDisplayName(" ");
+        redGlass.setItemMeta(meta);
+
+        if(crash.getCurrentHeadIndex() > 35 && crash.getCurrentHeadIndex() < 45) {
+            inventory.setItem(crash.getCurrentHeadIndex(), redGlass);
+        }
+
+        for(int i = crash.getCurrentHeadIndex() + 9; i < STOP_INDEX; i += 9) {
+            inventory.setItem(i, redGlass);
+        }
     }
 
     public void setCashOutItem() {
@@ -129,7 +167,12 @@ public class CrashGameMenu extends Menu {
         ConfigurationSection menu = config.getConfigurationSection("game_menu");
         ItemStack itemStack = new ItemStack(Material.valueOf(menu.getString("cash_out_item.material")));
         ItemMeta meta = itemStack.getItemMeta();
-        meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name")));
+        if(crash.isCrashed()) {
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_crashed")));
+        } else {
+            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_not_crashed")));
+        }
+
         List<String> lore = new ArrayList<>();
         for(String s : menu.getStringList("cash_out_item.lore")) {
             if(s.contains("%multiplier%")) {

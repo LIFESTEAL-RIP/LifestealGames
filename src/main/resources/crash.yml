@@ -50,7 +50,8 @@ game_menu:
   crash_chance: 25
   cash_out_item:
     material: BARRIER
-    name: '&aGame Status (Click to Cash Out)'
+    name_not_crashed: '&aClick to Cash Out'
+    name_crashed: '&cCRASHED'
     lore:
       - '&b%multiplier%'
       - ''
