@@ -121,7 +121,7 @@ public class Events implements Listener {
     //Separating this just to keep code clean
     @EventHandler
     public void lookForRPSChoice(AsyncPlayerChatEvent event) {
-        event.setCancelled(true);
+
         Player player = event.getPlayer();
 
         if(!ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().containsKey(player)) {
@@ -132,6 +132,7 @@ public class Events implements Listener {
 
         if(msg.equalsIgnoreCase("rock") || msg.equalsIgnoreCase("paper") || msg.equalsIgnoreCase("scissors")) {
             if(ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getPlayer1Choice() != null) {
+                event.setCancelled(true);
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2Choice(RPS.Choice.valueOf(msg.toUpperCase()));
                 ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).setPlayer2(player);
                 BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
@@ -156,6 +157,6 @@ public class Events implements Listener {
                      "settings.messages.not_rps_choice"))));
             ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().remove(player);
         }
-
+        event.setCancelled(true);
     }
 }

@@ -2,6 +2,7 @@ package com.etsuni.games.games;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.menus.coinflip.CoinflipGameMenu;
+import com.etsuni.games.utils.DBUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -63,6 +64,15 @@ public class Coinflip extends TwoPlayerGame{
                             plugin.getCoinflipConfig().getString("settings.messages.win")
                                     .replace("%winner%", ChatColor.stripColor(currentPlayerHead.getDisplayName()))
                                     .replace("%win_amount%", String.valueOf(winAmount.longValue()))));
+                    DBUtils dbUtils = new DBUtils(plugin);
+
+                    if(currentPlayerHead.equals(player1)) {
+                        dbUtils.addWinAndProfitToPlayer(player1, "cf", winAmount.longValue());
+                        dbUtils.addLossToPlayer(player2, "cf");
+                    } else if(currentPlayerHead.equals(player2)) {
+                        dbUtils.addWinAndProfitToPlayer(player2, "cf", winAmount.longValue());
+                        dbUtils.addLossToPlayer(player1, "cf");
+                    }
 
                     scheduler.cancelTask(taskId);
 

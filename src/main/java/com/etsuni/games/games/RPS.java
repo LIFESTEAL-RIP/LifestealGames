@@ -2,6 +2,7 @@ package com.etsuni.games.games;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.menus.rps.RPSGameMenu;
+import com.etsuni.games.utils.DBUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.configuration.Configuration;
@@ -72,34 +73,48 @@ public class RPS extends TwoPlayerGame {
 
     private void handleWinner() {
         Double winAmount;
+        DBUtils dbUtils = new DBUtils(plugin);
+
         if(player1Choice.equals(Choice.ROCK) && player2Choice.equals(Choice.SCISSORS)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
             sendMessages(player1, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player1, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player2, "rps");
             return;
         }
         else if(player1Choice.equals(Choice.ROCK) && player2Choice.equals(Choice.PAPER)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
             sendMessages(player2, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player2, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player1, "rps");
             return;
         }
         else if(player1Choice.equals(Choice.PAPER) && player2Choice.equals(Choice.ROCK)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
             sendMessages(player1, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player1, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player2, "rps");
             return;
         }
         else if(player1Choice.equals(Choice.PAPER) && player2Choice.equals(Choice.SCISSORS)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
             sendMessages(player2, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player2, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player1, "rps");
             return;
         }
         else if(player1Choice.equals(Choice.SCISSORS) && player2Choice.equals(Choice.PAPER)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
             sendMessages(player1, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player1, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player2, "rps");
             return;
         }
         else if(player1Choice.equals(Choice.SCISSORS) && player2Choice.equals(Choice.ROCK)) {
             winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
             sendMessages(player2, winAmount);
+            dbUtils.addWinAndProfitToPlayer(player2, "rps", winAmount.longValue());
+            dbUtils.addLossToPlayer(player1, "rps");
             return;
         }
 
