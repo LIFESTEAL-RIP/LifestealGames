@@ -55,12 +55,7 @@ main_menu:
       slot: 44
       name: '&3&lLeaderboard &o&7(Top Profit)'
       material: OAK_SIGN
-      lore:
-        - "&3#1) &f%leaderboard_1_name% &3%leaderboard_1_profit%"
-        - "&3#2) &f%leaderboard_2_name% &3%leaderboard_2_profit%"
-        - "&3#3) &f%leaderboard_3_name% &3%leaderboard_3_profit%"
-        - "&3#4) &f%leaderboard_4_name% &3%leaderboard_4_profit%"
-        - "&3#5) &f%leaderboard_5_name% &3%leaderboard_5_profit%"
+      lore_format: '&3#%number%) &f%player_name% &3%player_profit%'
       enchanted: false
 
 game_menu:

@@ -7,8 +7,11 @@ import com.etsuni.games.games.CurrentGames;
 import com.etsuni.games.games.GameType;
 import com.etsuni.games.menus.Menu;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import com.etsuni.games.utils.DBUtils;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.enchantments.Enchantment;
@@ -19,6 +22,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -69,8 +73,6 @@ public class CrashMainMenu extends Menu {
 
     @Override
     public void setMenuItems() {
-        //TODO ADD STAT HANDLING
-        //TODO ADD LEADERBOARD HANDLING
         Configuration config = plugin.getCrashConfig();
 
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");
@@ -88,11 +90,21 @@ public class CrashMainMenu extends Menu {
             }
 
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', items.getString(item + ".name")));
-            List<String> lore = new ArrayList<>();
-            for(String s : items.getStringList(item + ".lore")) {
-                lore.add(ChatColor.translateAlternateColorCodes('&',s));
+
+            if(item.equalsIgnoreCase("stats")) {
+                meta.setLore(getStats());
             }
-            meta.setLore(lore);
+            else if(item.equalsIgnoreCase("leaderboard")) {
+                meta.setLore(getLeaderboard());
+            }
+            else {
+                List<String> lore = new ArrayList<>();
+                for(String s : items.getStringList(item + ".lore")) {
+                    lore.add(ChatColor.translateAlternateColorCodes('&',s));
+                }
+                meta.setLore(lore);
+            }
+
             if(items.getBoolean(item + ".enchanted")) {
                 meta.addEnchant(Enchantment.ARROW_INFINITE, 1, true);
             }
@@ -104,5 +116,71 @@ public class CrashMainMenu extends Menu {
             itemStack.setItemMeta(meta);
             inventory.setItem(items.getInt(item + ".slot"), itemStack);
         }
+    }
+
+    private List<String> getStats() {
+        List<String> statsLore = new ArrayList<>();
+        DBUtils dbUtils = new DBUtils(plugin);
+        Configuration config = plugin.getCrashConfig();
+        ConfigurationSection stats = config.getConfigurationSection("main_menu.items.stats");
+        for(String s : stats.getStringList("lore")) {
+            if(s.contains("%wins%")) {
+                statsLore.add(ChatColor.translateAlternateColorCodes('&',
+                        s.replace("%wins%", String.valueOf(dbUtils.getPlayersWins(playerMenuUtility.getOwner(), "crash").getAsInt()))));
+            }
+            else if(s.contains("%losses%")) {
+                statsLore.add(ChatColor.translateAlternateColorCodes('&',
+                        s.replace("%losses%", String.valueOf(dbUtils.getPlayersLosses(playerMenuUtility.getOwner(), "crash").getAsInt()))));
+            }
+            else if(s.contains("%profit%")) {
+                statsLore.add(ChatColor.translateAlternateColorCodes('&',
+                        s.replace("%profit%", String.valueOf(dbUtils.getPlayersProfit(playerMenuUtility.getOwner(), "crash").getAsLong()))));
+            }
+            else if(s.contains("%win_percentage%")) {
+                statsLore.add(ChatColor.translateAlternateColorCodes('&',
+                        s.replace("%win_percentage%", calcWinPercentage())));
+            }
+        }
+
+        return statsLore;
+    }
+
+    private List<String> getLeaderboard() {
+        DBUtils dbUtils = new DBUtils(plugin);
+        List<String> dbLeaderboard = dbUtils.getLeaderboard("crash").get();
+        List<String> leaderboard = new ArrayList<>();
+        Configuration config = plugin.getCrashConfig();
+        ConfigurationSection board = config.getConfigurationSection("main_menu.items.leaderboard");
+        for(String player : dbLeaderboard) {
+            if(player == null) {
+                continue;
+            }
+            leaderboard.add(ChatColor.translateAlternateColorCodes('&',
+                    board.getString("lore_format")
+                            .replace("%number%", String.valueOf(dbLeaderboard.indexOf(player) + 1))
+                            .replace("%player_name%", player)
+                            .replace("%player_profit%", String.valueOf(dbUtils.getPlayersProfit(Bukkit.getOfflinePlayer(player), "crash").getAsLong()))
+            ));
+        }
+
+        return leaderboard;
+    }
+
+    private String calcWinPercentage() {
+        DBUtils dbUtils = new DBUtils(plugin);
+        int wins = dbUtils.getPlayersWins(playerMenuUtility.getOwner(), "crash").getAsInt();
+        int losses = dbUtils.getPlayersLosses(playerMenuUtility.getOwner(), "crash").getAsInt();
+        DecimalFormat df = new DecimalFormat("0.00");
+        if(losses < 1) {
+            return df.format(100.00);
+        }
+        if(wins < 1) {
+            return df.format(0.00);
+        }
+
+        double gamesPlayed = wins + losses;
+        double calcPercent = (double) (wins / gamesPlayed);
+
+        return df.format(calcPercent * 100);
     }
 }

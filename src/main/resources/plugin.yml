@@ -10,3 +10,5 @@ commands:
     description: Get to coinflip quickly
   rps:
     description: Get to rps quickly
+  crash:
+    description: Get to crash quickly

@@ -44,18 +44,10 @@ public class Commands implements CommandExecutor {
                                 if(args.length > 2) {
 
                                     if(args[2].equalsIgnoreCase("cf")) {
-                                        for(Coinflip coinflip : CurrentGames.getInstance().getCoinflipGames()) {
-                                            if(coinflip.getPlayer1().equals(targetPlayer)) {
-                                                coinflip.removeFromList();
-                                            }
-                                        }
+                                        CurrentGames.getInstance().getCoinflipGames().removeIf(coinflip -> coinflip.getPlayer1().equals(targetPlayer));
                                     }
                                     else if(args[2].equalsIgnoreCase("rps")) {
-                                        for(RPS rps : CurrentGames.getInstance().getRpsGames()) {
-                                            if(rps.getPlayer1().equals(targetPlayer)) {
-                                                rps.removeFromList();
-                                            }
-                                        }
+                                        CurrentGames.getInstance().getRpsGames().removeIf(rps -> rps.getPlayer1().equals(targetPlayer));
                                     }
                                 }
                             }
@@ -74,7 +66,7 @@ public class Commands implements CommandExecutor {
             }
             else if(command.getName().equalsIgnoreCase("crash")) {
                 CrashMainMenu crashMainMenu = new CrashMainMenu(plugin.getPlayerMenuUtility(((Player) sender).getPlayer()), plugin);
-                crashMainMenu.open();
+                crashMainMenu.openHopper();
             }
         }
         return false;

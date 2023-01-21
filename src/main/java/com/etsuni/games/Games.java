@@ -59,6 +59,7 @@ public final class Games extends JavaPlugin {
         this.getCommand("games").setExecutor(commands);
         this.getCommand("cf").setExecutor(commands);
         this.getCommand("rps").setExecutor(commands);
+        this.getCommand("crash").setExecutor(commands);
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
         this.getServer().getPluginManager().registerEvents(new Events(this), this);

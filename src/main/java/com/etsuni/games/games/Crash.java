@@ -2,13 +2,13 @@ package com.etsuni.games.games;
 
 import com.etsuni.games.Games;
 import com.etsuni.games.menus.crash.CrashGameMenu;
+import com.etsuni.games.utils.DBUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitScheduler;
 
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -31,6 +31,7 @@ public class Crash {
     private int currentIndexReducer = 8;
     private List<Integer> glassSlots = new ArrayList<>();
     private boolean crashed = false;
+    private boolean cashed_out = false;
 
     public Crash(Player player, Long wager, Games plugin) {
         this.plugin = plugin;
@@ -67,17 +68,24 @@ public class Crash {
     public void crash() {
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         scheduler.cancelTask(taskId);
+        if(!cashed_out) {
+            DBUtils dbUtils = new DBUtils(plugin);
+            dbUtils.addLossToPlayer(player, "crash");
+        }
     }
 
-    public void giveRewards() {
-
+    public Double giveRewards() {
+        cashed_out = true;
         int tax = plugin.getCrashConfig().getInt("settings.tax_amount");
         double amount = getWager() *  currentMultiplier;
         double taxed = amount * (tax / 100.00);
-        double finalAmount = (amount - taxed);
+        Double finalAmount = (amount - taxed);
+
+        DBUtils dbUtils = new DBUtils(plugin);
+        dbUtils.addWinAndProfitToPlayer(player, "crash", finalAmount.longValue());
 
         plugin.getEcon().depositPlayer(player, finalAmount);
-
+        return finalAmount;
     }
 
     public void addToGamesList() {
@@ -100,16 +108,8 @@ public class Crash {
         return wager;
     }
 
-    public void setWager(Long wager) {
-        this.wager = wager;
-    }
-
     public Double getCurrentMultiplier() {
         return currentMultiplier;
-    }
-
-    public void setCurrentMultiplier(Double currentMultiplier) {
-        this.currentMultiplier = currentMultiplier;
     }
 
     public Double getCurrentWinnings() {
@@ -144,15 +144,15 @@ public class Crash {
         return currentIndexReducer;
     }
 
-    public void setCurrentIndexReducer(int currentIndexReducer) {
-        this.currentIndexReducer = currentIndexReducer;
-    }
-
     public List<Integer> getGlassSlots() {
         return glassSlots;
     }
 
     public boolean isCrashed() {
         return crashed;
+    }
+
+    public boolean isCashed_out() {
+        return cashed_out;
     }
 }

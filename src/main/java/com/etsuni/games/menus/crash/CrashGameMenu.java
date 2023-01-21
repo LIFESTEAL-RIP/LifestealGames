@@ -49,10 +49,9 @@ public class CrashGameMenu extends Menu {
         }
 
         if(slot == 49 ) {
-            crash.giveRewards();
             player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     plugin.getCrashConfig().getString("settings.messages.win")
-                            .replace("%win_amount%", String.valueOf(crash.getCurrentWinnings().longValue()))));
+                            .replace("%win_amount%", String.valueOf(crash.giveRewards().longValue()))));
 
         }
     }
@@ -170,7 +169,11 @@ public class CrashGameMenu extends Menu {
         if(crash.isCrashed()) {
             meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_crashed")));
         } else {
-            meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_not_crashed")));
+            if(crash.isCashed_out()) {
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_cashed_out")));
+            } else {
+                meta.setDisplayName(ChatColor.translateAlternateColorCodes('&', menu.getString("cash_out_item.name_not_crashed")));
+            }
         }
 
         List<String> lore = new ArrayList<>();

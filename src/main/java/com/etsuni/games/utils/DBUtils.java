@@ -2,6 +2,7 @@ package com.etsuni.games.utils;
 
 import com.etsuni.games.Games;
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
 
 import java.sql.Connection;
@@ -51,10 +52,22 @@ public class DBUtils {
 
     public void addWinAndProfitToPlayer(Player player, String game, Long profit) {
         try(Connection conn = plugin.getDataSource().getConnection(); PreparedStatement statement = conn.prepareStatement(
-                "REPLACE players(" + game +"_wins, " + game + "_profit) VALUES(?,?);"
+                "UPDATE players SET " +game+"_wins = "+game+"_wins + 1,"
+                        + game+ "_profit = " +game+"_profit + ? WHERE uuid = ?;"
         )) {
-            statement.setString(1, String.valueOf(getPlayersWins(player, game).getAsInt() + 1));
-            statement.setString(2, String.valueOf(getPlayersProfit(player,game).getAsLong() + profit));
+            statement.setLong(1, profit);
+            statement.setString(2, player.getUniqueId().toString());
+            statement.execute();
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void addLossToPlayer(Player player, String game) {
+        try(Connection conn = plugin.getDataSource().getConnection(); PreparedStatement statement = conn.prepareStatement(
+                "UPDATE players SET " +game+"_losses = "+game+"_losses + 1 WHERE uuid = ?;"
+        )) {
+            statement.setString(1, player.getUniqueId().toString());
             statement.execute();
         }catch (SQLException e) {
             e.printStackTrace();
@@ -77,7 +90,22 @@ public class DBUtils {
         }
     }
 
-    public OptionalLong getPlayersProfit(Player player, String game) {
+    public OptionalInt getPlayersLosses(Player player, String game) {
+        try(Connection conn = plugin.getDataSource().getConnection(); PreparedStatement statement = conn.prepareStatement(
+                "SELECT " + game + "_losses FROM players WHERE uuid = ?;"
+        )) {
+            statement.setString(1, player.getUniqueId().toString());
+            ResultSet resultSet = statement.executeQuery();
+            if(resultSet.next()) {
+                return OptionalInt.of(resultSet.getInt(game + "_losses"));
+            }
+            return OptionalInt.empty();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return OptionalInt.empty();
+        }
+    }
+    public OptionalLong getPlayersProfit(OfflinePlayer player, String game) {
         try(Connection conn = plugin.getDataSource().getConnection(); PreparedStatement statement = conn.prepareStatement(
                 "SELECT " + game + "_profit FROM players WHERE uuid = ?;"
         )) {
@@ -93,15 +121,16 @@ public class DBUtils {
         }
     }
 
-    public Optional<List<Player>> getLeaderboard(String game) {
-        List<Player> leaderboard = new ArrayList<>();
+    public Optional<List<String>> getLeaderboard(String game) {
+        List<String> leaderboard = new ArrayList<>();
 
         try(Connection conn = plugin.getDataSource().getConnection(); PreparedStatement statement = conn.prepareStatement(
                 "SELECT uuid FROM players ORDER BY " + game + "_profit DESC LIMIT 5"
         )) {
             ResultSet resultSet = statement.executeQuery();
             if(resultSet.next()) {
-                leaderboard.add(Bukkit.getPlayer(resultSet.getString("uuid")));
+                UUID uuid = UUID.fromString(resultSet.getString("uuid"));
+                leaderboard.add(Bukkit.getOfflinePlayer(uuid).getName());
             }
             return Optional.of(leaderboard);
         } catch (SQLException e) {
