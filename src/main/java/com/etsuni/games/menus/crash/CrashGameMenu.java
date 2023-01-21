@@ -49,6 +49,11 @@ public class CrashGameMenu extends Menu {
         }
 
         if(slot == 49 ) {
+
+            if(crash.isCashed_out()) {
+                return;
+            }
+
             player.sendMessage(ChatColor.translateAlternateColorCodes('&',
                     plugin.getCrashConfig().getString("settings.messages.win")
                             .replace("%win_amount%", String.valueOf(crash.giveRewards().longValue()))));

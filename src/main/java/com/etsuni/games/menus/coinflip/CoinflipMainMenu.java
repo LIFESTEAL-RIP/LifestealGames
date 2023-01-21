@@ -47,11 +47,16 @@ public class CoinflipMainMenu extends PaginatedMenu {
 
     @Override
     public void handleMenu(InventoryClickEvent event) {
+        event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
 
         Configuration config = plugin.getCoinflipConfig();
         int slot = event.getSlot();
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");
+
+        if(slot == getSlots() - 9){
+            return;
+        }
 
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
@@ -79,6 +84,7 @@ public class CoinflipMainMenu extends PaginatedMenu {
             } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
                 Coinflip coinflip = CurrentGames.getInstance().getCoinflipGames().get(index - 1);
                 if(coinflip.getPlayer1().equals(player)) {
+                    event.setCancelled(true);
                     return;
                 }
                 if(plugin.getEcon().getBalance(player) >= coinflip.getWager()) {
@@ -95,8 +101,6 @@ public class CoinflipMainMenu extends PaginatedMenu {
 
     @Override
     public void setMenuItems() {
-        //TODO ADD STAT HANDLING
-        //TODO ADD LEADERBOARD HANDLING
         Configuration config = plugin.getCoinflipConfig();
 
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");

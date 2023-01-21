@@ -119,8 +119,11 @@ public class RPS extends TwoPlayerGame {
         }
 
         //Give players money back if no one wins, with tax taken out. Might be up for change.
-        winAmount = giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player1, wager.doubleValue());
-        giveRewards(plugin.getRpsConfig().getInt("settings.tax_amount"), player2, wager.doubleValue());
+        winAmount = Double.valueOf(wager);
+
+        plugin.getEcon().depositPlayer(player1, wager);
+        plugin.getEcon().depositPlayer(player2, wager);
+
         sendMessages(null, winAmount);
 
     }

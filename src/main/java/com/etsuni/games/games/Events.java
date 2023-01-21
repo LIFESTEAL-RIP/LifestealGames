@@ -28,7 +28,7 @@ public class Events implements Listener {
         if(!ChatWagers.getInstance().getWaitingList().containsKey(player)){
             return;
         }
-        String message = event.getMessage();
+        String message = ChatColor.stripColor(event.getMessage());
         long wager = 0;
 
         try {
@@ -128,7 +128,7 @@ public class Events implements Listener {
             return;
         }
 
-        String msg = event.getMessage();
+        String msg = ChatColor.stripColor(event.getMessage());
 
         if(msg.equalsIgnoreCase("rock") || msg.equalsIgnoreCase("paper") || msg.equalsIgnoreCase("scissors")) {
             if(ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().get(player).getPlayer1Choice() != null) {
@@ -155,8 +155,9 @@ public class Events implements Listener {
         } else {
             player.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(plugin.getRpsConfig().getString(
                      "settings.messages.not_rps_choice"))));
-            ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().remove(player);
+
         }
+        ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().remove(player);
         event.setCancelled(true);
     }
 }

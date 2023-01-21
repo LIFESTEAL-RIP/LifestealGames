@@ -43,11 +43,16 @@ public class RPSMainMenu extends PaginatedMenu {
 
     @Override
     public void handleMenu(InventoryClickEvent event) {
+        event.setCancelled(true);
         Player player = (Player) event.getWhoClicked();
 
         Configuration config = plugin.getRpsConfig();
         int slot = event.getSlot();
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");
+
+        if(slot == getSlots() - 9){
+            return;
+        }
 
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
@@ -92,8 +97,6 @@ public class RPSMainMenu extends PaginatedMenu {
 
     @Override
     public void setMenuItems() {
-        //TODO ADD STAT HANDLING
-        //TODO ADD LEADERBOARD HANDLING
         Configuration config = plugin.getRpsConfig();
 
         ConfigurationSection items = config.getConfigurationSection("main_menu.items");

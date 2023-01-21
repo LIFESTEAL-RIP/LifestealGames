@@ -6,6 +6,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.inventory.InventoryMoveItemEvent;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.InventoryHolder;
 
 public class MenuListener implements Listener {
@@ -23,8 +25,7 @@ public class MenuListener implements Listener {
         if(event.getClickedInventory() == null) {
             return;
         }
-
-        InventoryHolder holder = event.getClickedInventory().getHolder();
+        InventoryHolder holder = event.getView().getTopInventory().getHolder();
 
         if(holder instanceof Menu) {
             if(event.getCurrentItem() == null) {return;}
@@ -32,6 +33,15 @@ public class MenuListener implements Listener {
             Menu menu = (Menu) holder;
 
             menu.handleMenu(event);
+            event.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onInvMove(InventoryMoveItemEvent event) {
+        InventoryHolder holder = event.getDestination().getHolder();
+
+        if(holder instanceof Menu) {
             event.setCancelled(true);
         }
     }
