@@ -2,7 +2,7 @@ package com.etsuni.games.games;
 
 import com.etsuni.games.Games;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.AsyncPlayerChatEvent;
+
 
 public class TwoPlayerGame {
 

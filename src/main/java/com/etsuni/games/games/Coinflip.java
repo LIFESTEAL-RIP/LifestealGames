@@ -25,13 +25,20 @@ public class Coinflip extends TwoPlayerGame{
         CurrentGames.getInstance().getCoinflipGames().add(this);
     }
 
-    public void start() {
+    public Boolean start() {
+        if(!CurrentGames.getInstance().getCoinflipGames().contains(this)) {
+            return false;
+        }
+
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         removeFromList();
         CoinflipGameMenu p1Menu = new CoinflipGameMenu(plugin.getPlayerMenuUtility(player1), plugin, this);
         CoinflipGameMenu p2Menu = new CoinflipGameMenu(plugin.getPlayerMenuUtility(player2), plugin, this);
         p1Menu.open();
         p2Menu.open();
+
+        plugin.getEcon().withdrawPlayer(player1, wager);
+        plugin.getEcon().withdrawPlayer(player2, wager);
 
         currentPlayerHead = player1;
 
@@ -84,6 +91,7 @@ public class Coinflip extends TwoPlayerGame{
                 flipCount++;
             }
         },0, plugin.getCoinflipConfig().getInt("game_menu.flip_frequency"));
+        return true;
     }
     public void removeFromList() {
         CurrentGames.getInstance().getCoinflipGames().remove(this);

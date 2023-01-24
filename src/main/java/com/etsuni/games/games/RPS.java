@@ -18,7 +18,7 @@ public class RPS extends TwoPlayerGame {
     private int counter = 0;
     private int taskId;
 
-    enum Choice{
+    public enum Choice{
         ROCK(1),
         PAPER(2),
         SCISSORS(3);
@@ -34,13 +34,23 @@ public class RPS extends TwoPlayerGame {
 
     }
 
-    public void start() {
+    public Boolean start(Choice p2Choice) {
+
+        if(!CurrentGames.getInstance().getRpsGames().contains(this)) {
+            return false;
+        }
+
+        player2Choice = p2Choice;
+
         removeFromList();
         BukkitScheduler scheduler = Bukkit.getServer().getScheduler();
         RPSGameMenu p1Menu = new RPSGameMenu(plugin.getPlayerMenuUtility(player1), plugin, this);
         RPSGameMenu p2Menu = new RPSGameMenu(plugin.getPlayerMenuUtility(player2), plugin, this);
         p1Menu.open();
         p2Menu.open();
+
+        plugin.getEcon().withdrawPlayer(player1, wager);
+        plugin.getEcon().withdrawPlayer(player2, wager);
 
         taskId = scheduler.scheduleSyncRepeatingTask(plugin, new Runnable() {
             @Override
@@ -69,6 +79,8 @@ public class RPS extends TwoPlayerGame {
                 counter++;
             }
         }, 10, 20);
+
+        return true;
     }
 
     private void handleWinner() {

@@ -1,12 +1,10 @@
 package com.etsuni.games.menus.crash;
 
 import com.etsuni.games.Games;
-import com.etsuni.games.games.ChatWagers;
-import com.etsuni.games.games.Coinflip;
-import com.etsuni.games.games.CurrentGames;
-import com.etsuni.games.games.GameType;
+import com.etsuni.games.games.*;
 import com.etsuni.games.menus.Menu;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import com.etsuni.games.menus.wagers.WagerMenu;
 import com.etsuni.games.utils.DBUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -58,14 +56,9 @@ public class CrashMainMenu extends Menu {
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
-                    ChatWagers.getInstance().getWaitingList().put(player, GameType.CRASH);
-                    player.closeInventory();
-                    player.sendTitle(
-                            ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.title")),
-                            ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.message")),
-                            config.getInt("settings.messages.wager_start.fade_in"),
-                            config.getInt("settings.messages.wager_start.stay"),
-                            config.getInt("settings.messages.wager_start.fade_out"));
+                    Wager wager = new Wager(player, GameType.CRASH, config.getLong("settings.min_wager"), plugin);
+                    WagerMenu wagerMenu = new WagerMenu(playerMenuUtility, plugin, wager);
+                    wagerMenu.open();
                 }
             }
         }

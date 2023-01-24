@@ -4,6 +4,7 @@ import com.etsuni.games.Games;
 import com.etsuni.games.games.*;
 import com.etsuni.games.menus.PaginatedMenu;
 import com.etsuni.games.menus.PlayerMenuUtility;
+import com.etsuni.games.menus.wagers.WagerMenu;
 import com.etsuni.games.utils.DBUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -57,14 +58,10 @@ public class RPSMainMenu extends PaginatedMenu {
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
-                    ChatWagers.getInstance().getWaitingList().put(player, GameType.RPS);
-                    player.closeInventory();
-                    player.sendTitle(
-                            ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.title")),
-                            ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.wager_start.message")),
-                            config.getInt("settings.messages.wager_start.fade_in"),
-                            config.getInt("settings.messages.wager_start.stay"),
-                            config.getInt("settings.messages.wager_start.fade_out"));
+
+                    Wager wager = new Wager(player, GameType.RPS, config.getLong("settings.min_wager"), plugin);
+                    WagerMenu wagerMenu = new WagerMenu(playerMenuUtility, plugin, wager);
+                    wagerMenu.open();
                 }
                 else if(item.equalsIgnoreCase("previous_page")) {
                     if(page > 0) {
@@ -85,7 +82,6 @@ public class RPSMainMenu extends PaginatedMenu {
                 if(plugin.getEcon().getBalance(player) >= rps.getWager()) {
                     player.closeInventory();
                     rps.sendChoiceTitle(player);
-                    ChatWagers.getInstance().getRpsChoicesBeingWaitedOn().put(player, CurrentGames.getInstance().getRpsGames().get(index - 1));
                 } else {
                     player.closeInventory();
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.not_enough_money")));

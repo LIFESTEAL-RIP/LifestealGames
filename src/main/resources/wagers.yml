@@ -1,0 +1,20 @@
+decrement_item:
+  type: RED_DYE
+  name_format: '&4 - %amount%'
+  lore:
+    - Example
+increment_item:
+  type: GREEN_DYE
+  name_format: '&a + %amount%'
+  lore:
+    - Example
+current_wager_item:
+  type: MOJANG_BANNER_PATTERN
+  name_format: '&eCurrent Wager: %amount%'
+  lore:
+    - '&a For: %game%'
+    - '&bClick to confirm'
+border_item: GRAY_STAINED_GLASS_PANE
+menu_name: 'Wager'
+not_enough_money: '&cYou do not have enough money to wager!'
+sent_wager: '&aYou wagered %amount% for %game%'

@@ -71,3 +71,18 @@ game_menu:
   surrounding_glass_pane: LIME_STAINED_GLASS_PANE
   middle_glass_pane: GRAY_STAINED_GLASS_PANE
   player_head_name: '&6%player%'
+
+selection_menu:
+  title: 'Selection'
+  items:
+    border:
+      type: GRAY_STAINED_GLASS_PANE
+    rock:
+      type: STONE
+      name: '&fStone'
+    scissors:
+      type: SHEARS
+      name: '&cScissors'
+    paper:
+      type: PAPER
+      name: '&cPaper'

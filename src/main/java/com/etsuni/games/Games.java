@@ -1,7 +1,6 @@
 package com.etsuni.games;
 
 import com.etsuni.games.commands.Commands;
-import com.etsuni.games.games.Events;
 import com.etsuni.games.menus.MenuListener;
 import com.etsuni.games.menus.PlayerMenuUtility;
 import com.etsuni.games.utils.JoinListener;
@@ -37,6 +36,8 @@ public final class Games extends JavaPlugin {
     private FileConfiguration crashConfig;
     private File mainConfigFile;
     private FileConfiguration mainConfig;
+    private File wagersFile;
+    private FileConfiguration wagersConfig;
 
     private Commands commands;
 
@@ -62,7 +63,6 @@ public final class Games extends JavaPlugin {
         this.getCommand("crash").setExecutor(commands);
 
         this.getServer().getPluginManager().registerEvents(new MenuListener(this), this);
-        this.getServer().getPluginManager().registerEvents(new Events(this), this);
         this.getServer().getPluginManager().registerEvents(new JoinListener(this), this);
 
         try {
@@ -153,6 +153,20 @@ public final class Games extends JavaPlugin {
         } catch (IOException | InvalidConfigurationException e) {
             e.printStackTrace();
         }
+
+        wagersFile = new File(getDataFolder(), "wagers.yml");
+        if(!wagersFile.exists()) {
+            wagersFile.getParentFile().mkdirs();
+            saveResource("wagers.yml", false);
+        }
+
+        wagersConfig = new YamlConfiguration();
+
+        try {
+           wagersConfig.load(wagersFile);
+        } catch (IOException | InvalidConfigurationException e) {
+            e.printStackTrace();
+        }
     }
 
     public FileConfiguration getMainMenuConfig() {
@@ -169,6 +183,10 @@ public final class Games extends JavaPlugin {
 
     public FileConfiguration getCrashConfig() {
         return crashConfig;
+    }
+
+    public FileConfiguration getWagersConfig() {
+        return wagersConfig;
     }
 
     public PlayerMenuUtility getPlayerMenuUtility(Player player) {
