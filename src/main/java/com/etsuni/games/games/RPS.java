@@ -34,12 +34,12 @@ public class RPS extends TwoPlayerGame {
 
     }
 
-    public Boolean start(Choice p2Choice) {
+    public Boolean start(Choice p2Choice, Player p2) {
 
         if(!CurrentGames.getInstance().getRpsGames().contains(this)) {
             return false;
         }
-
+        player2 = p2;
         player2Choice = p2Choice;
 
         removeFromList();
@@ -170,17 +170,6 @@ public class RPS extends TwoPlayerGame {
 
     public void removeFromList() {
         CurrentGames.getInstance().getRpsGames().remove(this);
-    }
-
-    public void sendChoiceTitle(Player player) {
-        Configuration config = plugin.getRpsConfig();
-        player.sendTitle(
-                ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.choice_pick.title")),
-                ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.choice_pick.message")),
-                config.getInt("settings.messages.choice_pick.fade_in"),
-                config.getInt("settings.messages.choice_pick.stay"),
-                config.getInt("settings.messages.choice_pick.fade_out")
-                );
     }
 
     public Choice getPlayer1Choice() {

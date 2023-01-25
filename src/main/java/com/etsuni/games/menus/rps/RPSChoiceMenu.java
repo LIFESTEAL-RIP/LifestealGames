@@ -9,6 +9,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -36,6 +37,7 @@ public class RPSChoiceMenu extends Menu {
 
     @Override
     public void handleMenu(InventoryClickEvent event) {
+        Player player = (Player) event.getWhoClicked();
         int slot = event.getSlot();
         switch(slot) {
             case 11:
@@ -44,13 +46,11 @@ public class RPSChoiceMenu extends Menu {
                     CurrentGames.getInstance().getRpsGames().add(rps);
                     sendWagerMsg();
                 } else {
-                    if(!rps.start(RPS.Choice.ROCK)) {
-                        rps.setPlayer2(playerMenuUtility.getOwner().getPlayer());
-                        playerMenuUtility.getOwner().sendMessage(ChatColor.RED + "Invalid game.");
-
+                    if(!rps.start(RPS.Choice.ROCK, player)) {
+                        player.sendMessage(ChatColor.RED + "Invalid game.");
                     }
                 }
-                playerMenuUtility.getOwner().closeInventory();
+                player.closeInventory();
                 break;
             case 13:
                 if(rps.getPlayer1Choice() == null) {
@@ -58,13 +58,11 @@ public class RPSChoiceMenu extends Menu {
                     CurrentGames.getInstance().getRpsGames().add(rps);
                     sendWagerMsg();
                 } else {
-                    if(!rps.start(RPS.Choice.PAPER)) {
-                        rps.setPlayer2(playerMenuUtility.getOwner().getPlayer());
-                        playerMenuUtility.getOwner().sendMessage(ChatColor.RED + "Invalid game.");
-
+                    if(!rps.start(RPS.Choice.PAPER, player)) {
+                        player.sendMessage(ChatColor.RED + "Invalid game.");
                     }
                 }
-                playerMenuUtility.getOwner().closeInventory();
+                player.closeInventory();
                 break;
             case 15:
                 if(rps.getPlayer1Choice() == null) {
@@ -72,13 +70,11 @@ public class RPSChoiceMenu extends Menu {
                     CurrentGames.getInstance().getRpsGames().add(rps);
                     sendWagerMsg();
                 } else {
-                    if(!rps.start(RPS.Choice.SCISSORS)) {
-                        rps.setPlayer2(playerMenuUtility.getOwner().getPlayer());
-                        playerMenuUtility.getOwner().sendMessage(ChatColor.RED + "Invalid game.");
-
+                    if(!rps.start(RPS.Choice.SCISSORS, player)) {
+                        player.sendMessage(ChatColor.RED + "Invalid game.");
                     }
                 }
-                playerMenuUtility.getOwner().closeInventory();
+                player.closeInventory();
                 break;
         }
     }

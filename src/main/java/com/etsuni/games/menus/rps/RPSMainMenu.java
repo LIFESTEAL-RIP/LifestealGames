@@ -90,7 +90,8 @@ public class RPSMainMenu extends PaginatedMenu {
                 }
                 if(plugin.getEcon().getBalance(player) >= rps.getWager()) {
                     player.closeInventory();
-                    rps.sendChoiceTitle(player);
+                    RPSChoiceMenu rpsChoiceMenu = new RPSChoiceMenu(playerMenuUtility, rps, plugin);
+                    rpsChoiceMenu.open();
                 } else {
                     player.closeInventory();
                     player.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.not_enough_money")));
