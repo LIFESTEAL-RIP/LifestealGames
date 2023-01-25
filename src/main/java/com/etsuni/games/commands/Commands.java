@@ -14,6 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 import java.util.Objects;
@@ -68,6 +69,11 @@ public class Commands implements CommandExecutor {
 
                 if(args.length > 0) {
                     if(args[0].equalsIgnoreCase("create")) {
+                        Configuration config = plugin.getCoinflipConfig();
+                        if(playerAtMaxGames(((Player) sender).getPlayer(), config)) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.too_many_games")));
+                            return false;
+                        }
 
                         if(args.length > 1) {
                             long wager = 0L;
@@ -78,11 +84,12 @@ public class Commands implements CommandExecutor {
                                     if (wager < plugin.getCoinflipConfig().getInt("settings.min_wager")) {
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                                 plugin.getCoinflipConfig().getString("settings.messages.under_min_wager")));
-                                        return true;
+                                        return false;
                                     }
 
                                     Coinflip coinflip = new Coinflip(((Player) sender).getPlayer(), wager, plugin);
                                     coinflip.addToGamesList();
+                                    plugin.getEcon().withdrawPlayer(((Player) sender).getPlayer(), wager);
                                     ((Player) sender).getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getCoinflipConfig().getString("settings.messages.wager_inputted")
                                             .replace("%wager%", String.valueOf(wager))));
 
@@ -95,6 +102,8 @@ public class Commands implements CommandExecutor {
                                         Objects.requireNonNull(plugin.getCoinflipConfig().getString("settings.messages.not_a_number"))));
                                 return false;
                             }
+                        }else {
+                            sender.sendMessage(ChatColor.RED + "Usage: /cf create <wager>");
                         }
                     }
                 }
@@ -108,33 +117,47 @@ public class Commands implements CommandExecutor {
 
                 if(args.length > 0) {
                     if(args[0].equalsIgnoreCase("create")) {
+                        Configuration config = plugin.getRpsConfig();
+                        if(playerAtMaxGames(((Player) sender).getPlayer(), config)) {
+                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&', config.getString("settings.messages.too_many_games")));
+                            return false;
+                        }
 
-                        if(args.length > 1) {
-                            long wager = 0L;
-                            try {
-                                wager = Long.parseLong(args[1]);
-                                if (plugin.getEcon().getBalance(((Player) sender).getPlayer()) >= wager) {
+                        if(args.length > 2) {
+                            if(args[2].equalsIgnoreCase("rock") || args[2].equalsIgnoreCase("paper") || args[2].equalsIgnoreCase("scissors")) {
+                                long wager = 0L;
+                                try {
+                                    wager = Long.parseLong(args[1]);
+                                    if (plugin.getEcon().getBalance(((Player) sender).getPlayer()) >= wager) {
 
-                                    if (wager < plugin.getRpsConfig().getInt("settings.min_wager")) {
+                                        if (wager < plugin.getRpsConfig().getInt("settings.min_wager")) {
+                                            sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
+                                                    plugin.getRpsConfig().getString("settings.messages.under_min_wager")));
+                                            return false;
+                                        }
+
+                                        RPS rps = new RPS(((Player) sender).getPlayer(), wager, plugin);
+                                        rps.setPlayer1Choice(RPS.Choice.valueOf(args[2].toUpperCase()));
+                                        rps.addToList();
+                                        plugin.getEcon().withdrawPlayer(((Player) sender).getPlayer(), wager);
+                                        ((Player) sender).getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getRpsConfig().getString("settings.messages.wager_inputted")
+                                                .replace("%wager%", String.valueOf(wager))));
+
+                                    } else {
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                                plugin.getRpsConfig().getString("settings.messages.under_min_wager")));
-                                        return true;
+                                                plugin.getRpsConfig().getString("settings.messages.not_enough_money")));
                                     }
-
-                                    RPS rps = new RPS(((Player) sender).getPlayer(), wager, plugin);
-                                    rps.addToList();
-                                    ((Player) sender).getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', plugin.getRpsConfig().getString("settings.messages.wager_inputted")
-                                            .replace("%wager%", String.valueOf(wager))));
-
-                                } else {
+                                } catch (NumberFormatException e) {
                                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                            plugin.getRpsConfig().getString("settings.messages.not_enough_money")));
+                                            Objects.requireNonNull(plugin.getRpsConfig().getString("settings.messages.not_a_number"))));
+                                    return false;
                                 }
-                            } catch (NumberFormatException e) {
-                                sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
-                                        Objects.requireNonNull(plugin.getRpsConfig().getString("settings.messages.not_a_number"))));
-                                return false;
                             }
+                            else {
+                                sender.sendMessage(ChatColor.RED + "Usage: /rps create <wager> <rock|paper|scissors>");
+                            }
+                        } else {
+                            sender.sendMessage(ChatColor.RED + "Usage: /rps create <wager> <rock|paper|scissors>");
                         }
                     }
                 }
@@ -142,7 +165,7 @@ public class Commands implements CommandExecutor {
             else if(command.getName().equalsIgnoreCase("crash")) {
                 if(args.length == 0) {
                     CrashMainMenu crashMainMenu = new CrashMainMenu(plugin.getPlayerMenuUtility(((Player) sender).getPlayer()), plugin);
-                    crashMainMenu.open();
+                    crashMainMenu.openHopper();
                 }
 
                 if(args.length > 0) {
@@ -157,11 +180,12 @@ public class Commands implements CommandExecutor {
                                     if (wager < plugin.getCrashConfig().getInt("settings.min_wager")) {
                                         sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                                 plugin.getCrashConfig().getString("settings.messages.under_min_wager")));
-                                        return true;
+                                        return false;
                                     }
 
                                     Crash crash = new Crash(((Player) sender).getPlayer(), wager, plugin);
                                     crash.start();
+                                    plugin.getEcon().withdrawPlayer(((Player) sender).getPlayer(), wager);
                                 } else {
                                     sender.sendMessage(ChatColor.translateAlternateColorCodes('&',
                                             plugin.getCrashConfig().getString("settings.messages.not_enough_money")));
@@ -171,11 +195,38 @@ public class Commands implements CommandExecutor {
                                         Objects.requireNonNull(plugin.getCrashConfig().getString("settings.messages.not_a_number"))));
                                 return false;
                             }
+                        }else {
+                            sender.sendMessage(ChatColor.RED + "Usage: /crash create <wager>");
                         }
                     }
                 }
             }
         }
+        return false;
+    }
+
+    private Boolean playerAtMaxGames(Player player, Configuration config) {
+        if(config.equals(plugin.getCoinflipConfig())) {
+            int maxGames = config.getInt("settings.max_player_games");
+            int count = 0;
+            for(Coinflip coinflip : CurrentGames.getInstance().getCoinflipGames()) {
+                if(coinflip.getPlayer1().equals(player)) {
+                    count++;
+                }
+            }
+            return count >= maxGames;
+        }
+        else if(config.equals(plugin.getRpsConfig())) {
+            int maxGames = config.getInt("settings.max_player_games");
+            int count = 0;
+            for(RPS rps : CurrentGames.getInstance().getRpsGames()) {
+                if(rps.getPlayer1().equals(player)) {
+                    count++;
+                }
+            }
+            return count >= maxGames;
+        }
+
         return false;
     }
 }

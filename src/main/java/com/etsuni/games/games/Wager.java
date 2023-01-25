@@ -31,6 +31,8 @@ public class Wager {
             return false;
         }
 
+        plugin.getEcon().withdrawPlayer(player, amount);
+
         Configuration config = plugin.getWagersConfig();
         switch (gameType) {
             case COINFLIP:

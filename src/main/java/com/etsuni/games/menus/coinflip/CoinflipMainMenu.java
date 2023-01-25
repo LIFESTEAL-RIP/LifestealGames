@@ -6,6 +6,7 @@ import com.etsuni.games.menus.PaginatedMenu;
 import com.etsuni.games.menus.PlayerMenuUtility;
 import com.etsuni.games.menus.wagers.WagerMenu;
 import com.etsuni.games.utils.DBUtils;
+import net.milkbowl.vault.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -59,6 +60,13 @@ public class CoinflipMainMenu extends PaginatedMenu {
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
+
+                    if(playerAtMaxGames(player)) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(config.getString("settings.messages.too_many_games"))));
+                        player.closeInventory();
+                        return;
+                    }
+
                     Wager wager = new Wager(player, GameType.COINFLIP, config.getLong("settings.min_wager"), plugin);
                     WagerMenu wagerMenu = new WagerMenu(playerMenuUtility, plugin, wager);
                     wagerMenu.open();
@@ -77,6 +85,11 @@ public class CoinflipMainMenu extends PaginatedMenu {
             } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
                 Coinflip coinflip = CurrentGames.getInstance().getCoinflipGames().get(index - 1);
                 if(coinflip.getPlayer1().equals(player)) {
+                    if(event.getClick().isRightClick()) {
+                        coinflip.removeFromList();
+                        plugin.getEcon().depositPlayer(player, coinflip.getWager());
+                        open();
+                    }
                     event.setCancelled(true);
                     return;
                 }
@@ -225,5 +238,18 @@ public class CoinflipMainMenu extends PaginatedMenu {
         double calcPercent = (double) (wins / gamesPlayed);
 
         return df.format(calcPercent * 100);
+    }
+
+    private Boolean playerAtMaxGames(Player player) {
+        Configuration config = plugin.getCoinflipConfig();
+        int maxGames = config.getInt("settings.max_player_games");
+        int count = 0;
+        for(Coinflip coinflip : CurrentGames.getInstance().getCoinflipGames()) {
+            if(coinflip.getPlayer1().equals(player)) {
+                count++;
+            }
+        }
+
+        return count >= maxGames;
     }
 }

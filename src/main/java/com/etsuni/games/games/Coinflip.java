@@ -37,7 +37,6 @@ public class Coinflip extends TwoPlayerGame{
         p1Menu.open();
         p2Menu.open();
 
-        plugin.getEcon().withdrawPlayer(player1, wager);
         plugin.getEcon().withdrawPlayer(player2, wager);
 
         currentPlayerHead = player1;

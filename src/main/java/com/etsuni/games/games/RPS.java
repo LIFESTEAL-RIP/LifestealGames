@@ -49,7 +49,7 @@ public class RPS extends TwoPlayerGame {
         p1Menu.open();
         p2Menu.open();
 
-        plugin.getEcon().withdrawPlayer(player1, wager);
+//        plugin.getEcon().withdrawPlayer(player1, wager);
         plugin.getEcon().withdrawPlayer(player2, wager);
 
         taskId = scheduler.scheduleSyncRepeatingTask(plugin, new Runnable() {

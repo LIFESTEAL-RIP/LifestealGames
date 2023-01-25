@@ -58,7 +58,11 @@ public class RPSMainMenu extends PaginatedMenu {
         for(String item : items.getKeys(false)) {
             if(slot == items.getInt(item + ".slot")) {
                 if(item.equalsIgnoreCase("create_game")) {
-
+                    if(playerAtMaxGames(player)) {
+                        player.sendMessage(ChatColor.translateAlternateColorCodes('&', Objects.requireNonNull(config.getString("settings.messages.too_many_games"))));
+                        player.closeInventory();
+                        return;
+                    }
                     Wager wager = new Wager(player, GameType.RPS, config.getLong("settings.min_wager"), plugin);
                     WagerMenu wagerMenu = new WagerMenu(playerMenuUtility, plugin, wager);
                     wagerMenu.open();
@@ -77,6 +81,11 @@ public class RPSMainMenu extends PaginatedMenu {
             } else if(inventory.getItem(slot) != null && inventory.getItem(slot).getType().equals(Material.PLAYER_HEAD)){
                 RPS rps = CurrentGames.getInstance().getRpsGames().get(index - 1);
                 if(rps.getPlayer1().equals(player)) {
+                    if(event.getClick().isRightClick()) {
+                        rps.removeFromList();
+                        plugin.getEcon().depositPlayer(player, rps.getWager());
+                        open();
+                    }
                     return;
                 }
                 if(plugin.getEcon().getBalance(player) >= rps.getWager()) {
@@ -221,5 +230,18 @@ public class RPSMainMenu extends PaginatedMenu {
         double calcPercent = (double) (wins / gamesPlayed);
 
         return df.format(calcPercent * 100);
+    }
+
+    private Boolean playerAtMaxGames(Player player) {
+        Configuration config = plugin.getRpsConfig();
+        int maxGames = config.getInt("settings.max_player_games");
+        int count = 0;
+        for(RPS rps : CurrentGames.getInstance().getRpsGames()) {
+            if(rps.getPlayer1().equals(player)) {
+                count++;
+            }
+        }
+
+        return count >= maxGames;
     }
 }

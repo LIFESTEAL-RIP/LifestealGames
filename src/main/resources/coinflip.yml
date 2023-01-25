@@ -1,6 +1,7 @@
 settings:
   tax_amount: 10
   min_wager: 1000
+  max_player_games: 3
   messages:
     wager_start:
       title: '&a&lWAGER'
@@ -13,6 +14,7 @@ settings:
     under_min_wager: '&cWager must be more than $1000'
     not_enough_money: '&cYou do not have enough money to do that!'
     win: '&a%winner% has won the coinflip and is rewarded $%win_amount%'
+    too_many_games: '&cYou have created too many games!'
 
 
 

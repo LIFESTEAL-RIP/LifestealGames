@@ -1,6 +1,7 @@
 settings:
   tax_amount: 10
   min_wager: 1000
+  max_player_games: 3
   messages:
     wager_start:
       title: '&a&lWAGER'
@@ -22,6 +23,7 @@ settings:
     not_enough_money: '&cYou do not have enough money to do that!'
     no_winner: '&aNo one has won and  the amount given back is %amount%'
     win: '&a%winner% has won the Rock Paper Scissors and is rewarded $%win_amount%'
+    too_many_games: '&cYou have created too many games!'
 
 main_menu:
   size: 45
