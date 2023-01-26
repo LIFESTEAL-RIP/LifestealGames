@@ -128,7 +128,7 @@ public class DBUtils {
                 "SELECT uuid FROM players ORDER BY " + game + "_profit DESC LIMIT 5"
         )) {
             ResultSet resultSet = statement.executeQuery();
-            if(resultSet.next()) {
+            while(resultSet.next()) {
                 UUID uuid = UUID.fromString(resultSet.getString("uuid"));
                 leaderboard.add(Bukkit.getOfflinePlayer(uuid).getName());
             }
