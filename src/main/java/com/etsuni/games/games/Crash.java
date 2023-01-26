@@ -62,7 +62,7 @@ public class Crash {
                 }
                 currentMultiplier = currentMultiplier + 0.01D;
             }
-        },0, 5);
+        },0, 10);
     }
 
     public void crash() {
